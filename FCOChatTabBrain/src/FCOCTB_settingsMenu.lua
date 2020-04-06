@@ -1743,241 +1743,238 @@ function FCOCTB.BuildAddonMenu()
             type = "submenu",
             name = GetString(SI_CHATCHANNELCATEGORIES7),
             controls = {
+                {
+                    type = 'dropdown',
+                    name = FCOCTBlocVarsCTB["options_chat_auto_open_group_tab"],
+                    tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_group_tab_tooltip"],
+                    choices = chatVars.chatTabNames,
+                    getFunc = function()
+                        if chatVars.chatTabNames[FCOCTBsettings.autoOpenGroupChannelId] ~= nil then
+                            return chatVars.chatTabNames[FCOCTBsettings.autoOpenGroupChannelId]
+                        else
+                            if FCOCTBsettings.autoOpenGroupChannelId == 0 then
+                                return FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"]
+                            end
+                            return ""
+                        end
+                    end,
+                    setFunc = function(value)
+                        for i,v in pairs(chatVars.chatTabNames) do
+                            if v == value then
+                                if value == FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"] then
+                                    FCOCTBsettings.autoOpenGroupChannelId = 0
+                                    break
+                                end
+                                FCOCTBsettings.autoOpenGroupChannelId = i
+                                checkChatTabForChatCategory(i, {CHAT_CHANNEL_PARTY})
+                                break
+                            end
+                        end
+                    end,
+                    width="half",
+                    reference = "FCOChatTabBrainTabGroup",
+                },
+                {
+                    type = "slider",
+                    name = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_group_tab"],
+                    tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_tooltip"],
+                    min = 1,
+                    max = 1800,
+                    getFunc = function() return FCOCTBsettings.autoOpenGroupIdleTime end,
+                    setFunc = function(idleSeconds)
+                        FCOCTBsettings.autoOpenGroupIdleTime = idleSeconds
+                    end,
+                    width="half",
+                    default = FCOCTBdefSettings.autoOpenGroupIdleTime,
+                    disabled = function() return FCOCTBsettings.autoOpenGroupChannelId == 0  end,
+                },
+                {
+                    type = "checkbox",
+                    name = FCOCTBlocVarsCTB["options_chat_auto_change_channel_group_tab"],
+                    tooltip = FCOCTBlocVarsCTB["options_chat_auto_change_channel_group_tab_tooltip"],
+                    getFunc = function() return FCOCTBsettings.autoChangeToChannelGroup end,
+                    setFunc = function(value) FCOCTBsettings.autoChangeToChannelGroup = value
+                    end,
+                    default = FCOCTBdefSettings.autoChangeToChannelGroup,
+                    disabled = function() return FCOCTBsettings.autoOpenGroupChannelId == 0  end,
+                },
+                {
+                    type = "checkbox",
+                    name = FCOCTBlocVarsCTB["options_chat_auto_open_not_if_in_group"],
+                    tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_not_if_in_group_tooltip"],
+                    getFunc = function() return FCOCTBsettings.doNotAutoOpenIfGrouped end,
+                    setFunc = function(value) FCOCTBsettings.doNotAutoOpenIfGrouped = value end,
+                    disabled = function()
+                        if (FCOCTBsettings.autoOpenSayChannelId == 0 and
+                                FCOCTBsettings.autoOpenYellChannelId == 0 and
+                                FCOCTBsettings.autoOpenGuild1ChannelId == 0 and
+                                FCOCTBsettings.autoOpenGuild2ChannelId == 0 and
+                                FCOCTBsettings.autoOpenGuild3ChannelId == 0 and
+                                FCOCTBsettings.autoOpenGuild4ChannelId == 0 and
+                                FCOCTBsettings.autoOpenGuild5ChannelId == 0 and
+                                FCOCTBsettings.autoOpenOfficer1ChannelId == 0 and
+                                FCOCTBsettings.autoOpenOfficer2ChannelId == 0 and
+                                FCOCTBsettings.autoOpenOfficer3ChannelId == 0 and
+                                FCOCTBsettings.autoOpenOfficer4ChannelId == 0 and
+                                FCOCTBsettings.autoOpenOfficer5ChannelId == 0 and
+                                FCOCTBsettings.autoOpenZoneChannelId == 0 and
+                                FCOCTBsettings.autoOpenZoneDEChannelId == 0 and
+                                FCOCTBsettings.autoOpenZoneENChannelId == 0 and
+                                FCOCTBsettings.autoOpenZoneFRChannelId == 0 and
+                                FCOCTBsettings.autoOpenZoneJPChannelId == 0 and
+                                FCOCTBsettings.autoOpenGroupChannelId == 0 and
+                                FCOCTBsettings.autoOpenSystemChannelId == 0 and
+                                FCOCTBsettings.autoOpenNSCChannelId == 0
+                        ) then
+                            return true
+                        else
+                            return false
+                        end
+                    end,
+                },
+                {
+                    type = "checkbox",
+                    name = FCOCTBlocVarsCTB["options_chat_auto_open_not_if_in_group_exception_whisper"],
+                    tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_not_if_in_group_exception_whisper_tooltip"],
+                    getFunc = function() return FCOCTBsettings.doAutoOpenWhisperIfGrouped end,
+                    setFunc = function(value) FCOCTBsettings.doAutoOpenWhisperIfGrouped = value end,
+                    disabled = function() return not FCOCTBsettings.doNotAutoOpenIfGrouped  end,
+                },
             }, -- controls Group
         }, -- submenu Group
-
-        ----- NPC---------------------------------------------------------------------------------------------------
-        {
-            type = "submenu",
-            name = GetString(SI_CHATCHANNELCATEGORIES41),
-            controls = {
-            }, -- controls NPC
-        }, -- submenu NPC
 
         ----- System---------------------------------------------------------------------------------------------------
         {
             type = "submenu",
             name = GetString(SI_CHATCHANNELCATEGORIES9),
             controls = {
+                {
+                    type = 'dropdown',
+                    name = FCOCTBlocVarsCTB["options_chat_auto_open_system_tab"],
+                    tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_system_tab_tooltip"],
+                    choices = chatVars.chatTabNames,
+                    getFunc = function()
+                        if chatVars.chatTabNames[FCOCTBsettings.autoOpenSystemChannelId] ~= nil then
+                            return chatVars.chatTabNames[FCOCTBsettings.autoOpenSystemChannelId]
+                        else
+                            if FCOCTBsettings.autoOpenSystemChannelId == 0 then
+                                return FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"]
+                            end
+                            return ""
+                        end
+                    end,
+                    setFunc = function(value)
+                        for i,v in pairs(chatVars.chatTabNames) do
+                            if v == value then
+                                if value == FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"] then
+                                    FCOCTBsettings.autoOpenSystemChannelId = 0
+                                    break
+                                end
+                                FCOCTBsettings.autoOpenSystemChannelId = i
+                                checkChatTabForChatCategory(i, {CHAT_CHANNEL_SYSTEM})
+                                break
+                            end
+                        end
+                    end,
+                    width="half",
+                    reference = "FCOChatTabBrainTabSystem",
+                },
+                {
+                    type = "slider",
+                    name = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_system_tab"],
+                    tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_tooltip"],
+                    min = 1,
+                    max = 1800,
+                    getFunc = function() return FCOCTBsettings.autoOpenSystemIdleTime end,
+                    setFunc = function(idleSeconds)
+                        FCOCTBsettings.autoOpenSystemIdleTime = idleSeconds
+                    end,
+                    width="half",
+                    default = FCOCTBdefSettings.autoOpenSystemIdleTime,
+                    disabled = function() return FCOCTBsettings.autoOpenSystemChannelId == 0  end,
+                },
+        --[[
+                --There is no system channel we could manually use to write in!
+                {
+                    type = "checkbox",
+                    name = FCOCTBlocVarsCTB["options_chat_auto_change_channel_system_tab"],
+                    tooltip = FCOCTBlocVarsCTB["options_chat_auto_change_channel_system_tab_tooltip"],
+                    getFunc = function() return FCOCTBsettings.autoChangeToChannelSystem end,
+                    setFunc = function(value) FCOCTBsettings.autoChangeToChannelSystem = value
+                    end,
+                    default = FCOCTBdefSettings.autoChangeToChannelSystem,
+                    disabled = function() return FCOCTBsettings.autoOpenSystemChannelId == 0  end,
+                },
+        ]]
             }, -- controls system
         }, -- submenu system
 
-
-
-
-
-
-
+        ----- NPCs---------------------------------------------------------------------------------------------------
         {
-            type = 'dropdown',
-            name = FCOCTBlocVarsCTB["options_chat_auto_open_group_tab"],
-            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_group_tab_tooltip"],
-            choices = chatVars.chatTabNames,
-            getFunc = function()
-                if chatVars.chatTabNames[FCOCTBsettings.autoOpenGroupChannelId] ~= nil then
-                    return chatVars.chatTabNames[FCOCTBsettings.autoOpenGroupChannelId]
-                else
-                    if FCOCTBsettings.autoOpenGroupChannelId == 0 then
-                        return FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"]
-                    end
-                    return ""
-                end
-            end,
-            setFunc = function(value)
-                for i,v in pairs(chatVars.chatTabNames) do
-                    if v == value then
-                        if value == FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"] then
-                            FCOCTBsettings.autoOpenGroupChannelId = 0
-                            break
+            type = "submenu",
+            name = GetString(SI_CHATCHANNELCATEGORIES41),
+            controls = {
+                {
+                    type = 'dropdown',
+                    name = FCOCTBlocVarsCTB["options_chat_auto_open_nsc_tab"],
+                    tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_nsc_tab_tooltip"],
+                    choices = chatVars.chatTabNames,
+                    getFunc = function()
+                        if chatVars.chatTabNames[FCOCTBsettings.autoOpenNSCChannelId] ~= nil then
+                            return chatVars.chatTabNames[FCOCTBsettings.autoOpenNSCChannelId]
+                        else
+                            if FCOCTBsettings.autoOpenNSCChannelId == 0 then
+                                return FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"]
+                            end
+                            return ""
                         end
-                        FCOCTBsettings.autoOpenGroupChannelId = i
-                        checkChatTabForChatCategory(i, {CHAT_CHANNEL_PARTY})
-                        break
-                    end
-                end
-            end,
-            width="half",
-            reference = "FCOChatTabBrainTabGroup",
-        },
-        {
-            type = "slider",
-            name = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_group_tab"],
-            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_tooltip"],
-            min = 1,
-            max = 1800,
-            getFunc = function() return FCOCTBsettings.autoOpenGroupIdleTime end,
-            setFunc = function(idleSeconds)
-                FCOCTBsettings.autoOpenGroupIdleTime = idleSeconds
-            end,
-            width="half",
-            default = FCOCTBdefSettings.autoOpenGroupIdleTime,
-            disabled = function() return FCOCTBsettings.autoOpenGroupChannelId == 0  end,
-        },
-        {
-            type = "checkbox",
-            name = FCOCTBlocVarsCTB["options_chat_auto_change_channel_group_tab"],
-            tooltip = FCOCTBlocVarsCTB["options_chat_auto_change_channel_group_tab_tooltip"],
-            getFunc = function() return FCOCTBsettings.autoChangeToChannelGroup end,
-            setFunc = function(value) FCOCTBsettings.autoChangeToChannelGroup = value
-            end,
-            default = FCOCTBdefSettings.autoChangeToChannelGroup,
-            disabled = function() return FCOCTBsettings.autoOpenGroupChannelId == 0  end,
-        },
-        {
-            type = "checkbox",
-            name = FCOCTBlocVarsCTB["options_chat_auto_open_not_if_in_group"],
-            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_not_if_in_group_tooltip"],
-            getFunc = function() return FCOCTBsettings.doNotAutoOpenIfGrouped end,
-            setFunc = function(value) FCOCTBsettings.doNotAutoOpenIfGrouped = value end,
-            disabled = function()
-                if (FCOCTBsettings.autoOpenSayChannelId == 0 and
-                        FCOCTBsettings.autoOpenYellChannelId == 0 and
-                        FCOCTBsettings.autoOpenGuild1ChannelId == 0 and
-                        FCOCTBsettings.autoOpenGuild2ChannelId == 0 and
-                        FCOCTBsettings.autoOpenGuild3ChannelId == 0 and
-                        FCOCTBsettings.autoOpenGuild4ChannelId == 0 and
-                        FCOCTBsettings.autoOpenGuild5ChannelId == 0 and
-                        FCOCTBsettings.autoOpenOfficer1ChannelId == 0 and
-                        FCOCTBsettings.autoOpenOfficer2ChannelId == 0 and
-                        FCOCTBsettings.autoOpenOfficer3ChannelId == 0 and
-                        FCOCTBsettings.autoOpenOfficer4ChannelId == 0 and
-                        FCOCTBsettings.autoOpenOfficer5ChannelId == 0 and
-                        FCOCTBsettings.autoOpenZoneChannelId == 0 and
-                        FCOCTBsettings.autoOpenZoneDEChannelId == 0 and
-                        FCOCTBsettings.autoOpenZoneENChannelId == 0 and
-                        FCOCTBsettings.autoOpenZoneFRChannelId == 0 and
-                        FCOCTBsettings.autoOpenGroupChannelId == 0 and
-                        FCOCTBsettings.autoOpenSystemChannelId == 0 and
-                        FCOCTBsettings.autoOpenNSCChannelId == 0
-                ) then
-                    return true
-                else
-                    return false
-                end
-            end,
-        },
-        {
-            type = "checkbox",
-            name = FCOCTBlocVarsCTB["options_chat_auto_open_not_if_in_group_exception_whisper"],
-            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_not_if_in_group_exception_whisper_tooltip"],
-            getFunc = function() return FCOCTBsettings.doAutoOpenWhisperIfGrouped end,
-            setFunc = function(value) FCOCTBsettings.doAutoOpenWhisperIfGrouped = value end,
-            disabled = function() return not FCOCTBsettings.doNotAutoOpenIfGrouped  end,
-        },
-        {
-            type = 'dropdown',
-            name = FCOCTBlocVarsCTB["options_chat_auto_open_system_tab"],
-            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_system_tab_tooltip"],
-            choices = chatVars.chatTabNames,
-            getFunc = function()
-                if chatVars.chatTabNames[FCOCTBsettings.autoOpenSystemChannelId] ~= nil then
-                    return chatVars.chatTabNames[FCOCTBsettings.autoOpenSystemChannelId]
-                else
-                    if FCOCTBsettings.autoOpenSystemChannelId == 0 then
-                        return FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"]
-                    end
-                    return ""
-                end
-            end,
-            setFunc = function(value)
-                for i,v in pairs(chatVars.chatTabNames) do
-                    if v == value then
-                        if value == FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"] then
-                            FCOCTBsettings.autoOpenSystemChannelId = 0
-                            break
+                    end,
+                    setFunc = function(value)
+                        for i,v in pairs(chatVars.chatTabNames) do
+                            if v == value then
+                                if value == FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"] then
+                                    FCOCTBsettings.autoOpenNSCChannelId = 0
+                                    break
+                                end
+                                FCOCTBsettings.autoOpenNSCChannelId = i
+                                checkChatTabForChatCategory(i, {CHAT_CHANNEL_MONSTER_SAY, CHAT_CHANNEL_MONSTER_YELL, CHAT_CHANNEL_MONSTER_WHISPER})
+                                break
+                            end
                         end
-                        FCOCTBsettings.autoOpenSystemChannelId = i
-                        checkChatTabForChatCategory(i, {CHAT_CHANNEL_SYSTEM})
-                        break
-                    end
-                end
-            end,
-            width="half",
-            reference = "FCOChatTabBrainTabSystem",
-        },
-        {
-            type = "slider",
-            name = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_system_tab"],
-            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_tooltip"],
-            min = 1,
-            max = 1800,
-            getFunc = function() return FCOCTBsettings.autoOpenSystemIdleTime end,
-            setFunc = function(idleSeconds)
-                FCOCTBsettings.autoOpenSystemIdleTime = idleSeconds
-            end,
-            width="half",
-            default = FCOCTBdefSettings.autoOpenSystemIdleTime,
-            disabled = function() return FCOCTBsettings.autoOpenSystemChannelId == 0  end,
-        },
---[[
-        {
-            type = "checkbox",
-            name = FCOCTBlocVarsCTB["options_chat_auto_change_channel_system_tab"],
-            tooltip = FCOCTBlocVarsCTB["options_chat_auto_change_channel_system_tab_tooltip"],
-            getFunc = function() return FCOCTBsettings.autoChangeToChannelSystem end,
-            setFunc = function(value) FCOCTBsettings.autoChangeToChannelSystem = value
-            end,
-            default = FCOCTBdefSettings.autoChangeToChannelSystem,
-            disabled = function() return FCOCTBsettings.autoOpenSystemChannelId == 0  end,
-        },
-]]
-        {
-            type = 'dropdown',
-            name = FCOCTBlocVarsCTB["options_chat_auto_open_nsc_tab"],
-            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_nsc_tab_tooltip"],
-            choices = chatVars.chatTabNames,
-            getFunc = function()
-                if chatVars.chatTabNames[FCOCTBsettings.autoOpenNSCChannelId] ~= nil then
-                    return chatVars.chatTabNames[FCOCTBsettings.autoOpenNSCChannelId]
-                else
-                    if FCOCTBsettings.autoOpenNSCChannelId == 0 then
-                        return FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"]
-                    end
-                    return ""
-                end
-            end,
-            setFunc = function(value)
-                for i,v in pairs(chatVars.chatTabNames) do
-                    if v == value then
-                        if value == FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"] then
-                            FCOCTBsettings.autoOpenNSCChannelId = 0
-                            break
-                        end
-                        FCOCTBsettings.autoOpenNSCChannelId = i
-                        checkChatTabForChatCategory(i, {CHAT_CHANNEL_MONSTER_SAY, CHAT_CHANNEL_MONSTER_YELL, CHAT_CHANNEL_MONSTER_WHISPER})
-                        break
-                    end
-                end
-            end,
-            width="half",
-            reference = "FCOChatTabBrainTabNSC",
-        },
-        {
-            type = "slider",
-            name = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_system_tab"],
-            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_tooltip"],
-            min = 1,
-            max = 1800,
-            getFunc = function() return FCOCTBsettings.autoOpenNSCIdleTime end,
-            setFunc = function(idleSeconds)
-                FCOCTBsettings.autoOpenNSCIdleTime = idleSeconds
-            end,
-            width="half",
-            default = FCOCTBdefSettings.autoOpenNSCIdleTime,
-            disabled = function() return FCOCTBsettings.autoOpenNSCChannelId == 0  end,
-        },
---[[
-        {
-            type = "checkbox",
-            name = FCOCTBlocVarsCTB["options_chat_auto_change_channel_nsc_tab"],
-            tooltip = FCOCTBlocVarsCTB["options_chat_auto_change_channel_nsc_tab_tooltip"],
-            getFunc = function() return FCOCTBsettings.autoChangeToChannelNSC end,
-            setFunc = function(value) FCOCTBsettings.autoChangeToChannelNSC = value
-            end,
-            default = FCOCTBdefSettings.autoChangeToChannelNSC,
-            disabled = function() return FCOCTBsettings.autoOpenNSCChannelId == 0  end,
-        },
-]]
+                    end,
+                    width="half",
+                    reference = "FCOChatTabBrainTabNSC",
+                },
+                {
+                    type = "slider",
+                    name = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_nsc_tab"],
+                    tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_tooltip"],
+                    min = 1,
+                    max = 1800,
+                    getFunc = function() return FCOCTBsettings.autoOpenNSCIdleTime end,
+                    setFunc = function(idleSeconds)
+                        FCOCTBsettings.autoOpenNSCIdleTime = idleSeconds
+                    end,
+                    width="half",
+                    default = FCOCTBdefSettings.autoOpenNSCIdleTime,
+                    disabled = function() return FCOCTBsettings.autoOpenNSCChannelId == 0  end,
+                },
+        --[[
+                --There is no NPCs channel we could manually use to write in!
+                {
+                    type = "checkbox",
+                    name = FCOCTBlocVarsCTB["options_chat_auto_change_channel_nsc_tab"],
+                    tooltip = FCOCTBlocVarsCTB["options_chat_auto_change_channel_nsc_tab_tooltip"],
+                    getFunc = function() return FCOCTBsettings.autoChangeToChannelNSC end,
+                    setFunc = function(value) FCOCTBsettings.autoChangeToChannelNSC = value
+                    end,
+                    default = FCOCTBdefSettings.autoChangeToChannelNSC,
+                    disabled = function() return FCOCTBsettings.autoOpenNSCChannelId == 0  end,
+                },
+        ]]
+            }, -- controls NPCs
+        }, -- submenu NPCs
+
         --==============================================================================
         {
             type = "header",
