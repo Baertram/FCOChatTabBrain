@@ -380,7 +380,7 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
     end
 
 --d("PreferredSound: " .. tostring(settings.preferedSoundForMultiple) .. ", Enabled: " .. tostring(soundToPlayNow["enabled"]) .. ", doNotPlayGuildMasterSound: " ..tostring(doNotPlayGuildMasterSound))
-d("PreferredSound: " .. tostring(settings.preferedSoundForMultiple) .. ", doNotPlayGuildMasterSound: " ..tostring(doNotPlayGuildMasterSound))
+--d("PreferredSound: " .. tostring(settings.preferedSoundForMultiple) .. ", doNotPlayGuildMasterSound: " ..tostring(doNotPlayGuildMasterSound))
     --Play a special sound now?
     if soundToPlayNow ~= nil and soundToPlayNow["sound"] ~= nil then
         PlaySound(SOUNDS[FCOCTB.sounds[soundToPlayNow["sound"]]])

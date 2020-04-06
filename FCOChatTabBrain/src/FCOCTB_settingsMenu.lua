@@ -852,7 +852,7 @@ function FCOCTB.BuildAddonMenu()
                 {
                     type = "submenu",
                     name = GetString(SI_CHATCHANNELCATEGORIES11) .. " - " .. tostring(guildNames[2]),
-                    disabled = function() return areGuildsEnabled(2) end,
+                    disabled = function() return not areGuildsEnabled(2) end,
                     controls = {
                         {
                             type = 'dropdown',
@@ -916,7 +916,7 @@ function FCOCTB.BuildAddonMenu()
                 {
                     type = "submenu",
                     name = GetString(SI_CHATCHANNELCATEGORIES12) .. " - " .. tostring(guildNames[3]),
-                    disabled = function() return areGuildsEnabled(3) end,
+                    disabled = function() return not areGuildsEnabled(3) end,
                     controls = {
                         {
                             type = 'dropdown',
@@ -980,7 +980,7 @@ function FCOCTB.BuildAddonMenu()
                 {
                     type = "submenu",
                     name = GetString(SI_CHATCHANNELCATEGORIES13) .. " - " .. tostring(guildNames[4]),
-                    disabled = function() return areGuildsEnabled(4) end,
+                    disabled = function() return not areGuildsEnabled(4) end,
                     controls = {
                         {
                             type = 'dropdown',
@@ -1044,7 +1044,7 @@ function FCOCTB.BuildAddonMenu()
                 {
                     type = "submenu",
                     name = GetString(SI_CHATCHANNELCATEGORIES14) .. " - " .. tostring(guildNames[5]),
-                    disabled = function() return areGuildsEnabled(5) end,
+                    disabled = function() return not areGuildsEnabled(5) end,
                     controls = {
                         {
                             type = 'dropdown',
@@ -1172,7 +1172,7 @@ function FCOCTB.BuildAddonMenu()
                 {
                     type = "submenu",
                     name = GetString(SI_CHATCHANNELCATEGORIES16) .. " - " .. tostring(guildNames[2]),
-                    disabled = function() return areGuildsEnabled(2) end,
+                    disabled = function() return not areGuildsEnabled(2) end,
                     controls = {
                         {
                             type = 'dropdown',
@@ -1236,7 +1236,7 @@ function FCOCTB.BuildAddonMenu()
                 {
                     type = "submenu",
                     name = GetString(SI_CHATCHANNELCATEGORIES17) .. " - " .. tostring(guildNames[3]),
-                    disabled = function() return areGuildsEnabled(3) end,
+                    disabled = function() return not areGuildsEnabled(3) end,
                     controls = {
                         {
                             type = 'dropdown',
@@ -1300,7 +1300,7 @@ function FCOCTB.BuildAddonMenu()
                 {
                     type = "submenu",
                     name = GetString(SI_CHATCHANNELCATEGORIES18) .. " - " .. tostring(guildNames[4]),
-                    disabled = function() return areGuildsEnabled(4) end,
+                    disabled = function() return not areGuildsEnabled(4) end,
                     controls = {
                         {
                             type = 'dropdown',
@@ -1364,7 +1364,7 @@ function FCOCTB.BuildAddonMenu()
                 {
                     type = "submenu",
                     name = GetString(SI_CHATCHANNELCATEGORIES19) .. " - " .. tostring(guildNames[5]),
-                    disabled = function() return areGuildsEnabled(5) end,
+                    disabled = function() return not areGuildsEnabled(5) end,
                     controls = {
                         {
                             type = 'dropdown',
