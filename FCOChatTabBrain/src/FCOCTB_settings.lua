@@ -147,6 +147,8 @@ function FCOCTB.LoadUserSettings()
         playSoundWithActiveTabZoneEN= false,
         playSoundOnMessageZoneFR    = 1,
         playSoundWithActiveTabZoneFR= false,
+        playSoundOnMessageZoneJP    = 1,
+        playSoundWithActiveTabZoneJP= false,
         playSoundOnMessageGroup     = 1,
         playSoundWithActiveTabGroup = false,
         playSoundOnGroupLeader      = 1,

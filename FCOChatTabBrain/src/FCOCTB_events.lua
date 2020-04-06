@@ -779,7 +779,8 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
         if (settings.showChatTabColor == true
                 and (switchToTabIndex ~= nil and switchToTabIndex > 0 and (numChatTabs ~= nil and switchToTabIndex <= numChatTabs))
                 and (
-                    (prevVars.timeNotReached == true or (prevVars.timeNotReached == false and not settings.enableChatTabSwitch))
+                    --Automatic chat tab switch is enabled and the idle time was not met? Or automatic chat tab switch was disabled.
+                    (prevVars.timeNotReached == true or (not settings.enableChatTabSwitch and prevVars.timeNotReached == false))
                         or dontShowBecauseMinimized or isGroupedAndDontChangeTabThen
                 )
         )
