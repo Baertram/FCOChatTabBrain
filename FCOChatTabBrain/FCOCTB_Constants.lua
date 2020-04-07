@@ -137,6 +137,19 @@ for chatChannelId, isEnabled in pairs(FCOCTB.mappingVars.activeChatChannels) do
         end
     end
 end
+--The guild related chat channels
+FCOCTB.mappingVars.guildChatChannels = {
+    [CHAT_CHANNEL_GUILD_1]  = true,
+    [CHAT_CHANNEL_GUILD_2]  = true,
+    [CHAT_CHANNEL_GUILD_3]  = true,
+    [CHAT_CHANNEL_GUILD_4]  = true,
+    [CHAT_CHANNEL_GUILD_5]  = true,
+    [CHAT_CHANNEL_OFFICER_1]  = true,
+    [CHAT_CHANNEL_OFFICER_2]  = true,
+    [CHAT_CHANNEL_OFFICER_3]  = true,
+    [CHAT_CHANNEL_OFFICER_4]  = true,
+    [CHAT_CHANNEL_OFFICER_5]  = true,
+}
 
 --Chat
 FCOCTB.chatVars = {}

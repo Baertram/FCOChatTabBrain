@@ -83,6 +83,9 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
     isGroupLeaderSound = isGroupLeaderSound or false
     isMessageFromGuildMaster = isMessageFromGuildMaster or false
 
+    --The chat channles of the possible guilds
+    local guildChatChannels = FCOCTB.mappingVars.guildChatChannels
+
     --Get the current active chat tab
     local currentChatTab = CHAT_SYSTEM.primaryContainer.currentBuffer:GetParent().tab.index
     local soundToPlayForChatChannel
@@ -91,9 +94,11 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
     local soundToPlayForCharacterName
     local soundToPlayForGroupLeader
     local soundToPlayForGuildMaster
+    local onlyPlayGuildMasterSoundOnGuildTabs = settings.playSoundOnGuildMasterOnlyGuildTabs
 
     --Special check results
-    local doNotPlayGuildMasterSound = false
+    local doNotPlayGuildMasterSound = true
+    local doNotPlayGroupLeaderSound = true
 
     --Get the sounds for friend, text found in message, characterName, group leader and guild master messages
     if isFriend and settings.playSoundOnMessageFriend ~= 1 then
@@ -105,18 +110,18 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
     if characterName and settings.playSoundOnMyCharacterName ~= 1 then
         soundToPlayForCharacterName = settings.playSoundOnMyCharacterName
     end
-    if isGroupLeaderSound and settings.playSoundOnGroupLeader ~= 1 then
+    local playSoundWithActiveTabGroupMaster = settings.playSoundWithActiveTabGroupLeader
+    if isGroupLeaderSound == true and settings.playSoundOnGroupLeader ~= 1 then
         soundToPlayForGroupLeader = settings.playSoundOnGroupLeader
+        doNotPlayGroupLeaderSound = false
     end
     local playSoundWithActiveTabGuildMaster = settings.playSoundWithActiveTabGuildMaster
-    if isMessageFromGuildMaster and settings.playSoundOnGuildMaster ~= 1 then
+    if isMessageFromGuildMaster == true and settings.playSoundOnGuildMaster ~= 1 then
         soundToPlayForGuildMaster = settings.playSoundOnGuildMaster
-        if playSoundWithActiveTabGuildMaster == true and guildNr ~= nil then
-            if guildNr < 1 then guildNr = 1 end
-            local maxGuilds = GetNumGuilds()
-            if guildNr > maxGuilds then guildNr = maxGuilds end
-        end
+        doNotPlayGuildMasterSound = false
     end
+--d(">>doNotPlayGuildMasterSound: " ..tostring(doNotPlayGuildMasterSound))
+
 
     --Mapping array for the chat channel to sound info & settings
     local chatChannelToSoundSettings = {
@@ -255,41 +260,83 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
         local switchToTab = playSoundSettings["switchToTab"]
         local guildNrOfMessageChannel = playSoundSettings["guildNr"]
 
-        --A sound to play was chosen for the chat channel of the message?
-        if soundToPlay and soundToPlay > 1 then
-            --Is the currentChatTab the chatTab assigned to the message's channel?
-            local currentChatTabEqualsMessageChatTab = (currentChatTab and switchToTab and switchToTab ~= 0 and currentChatTab == switchToTab) or false
+        --Is the currentChatTab the chatTab assigned to the message's channel?
+        local currentChatTabEqualsMessageChatTab = (currentChatTab and switchToTab and switchToTab ~= 0 and currentChatTab == switchToTab) or false
 
-            --[[Special checks]]
+        --==================[[Special checks - BEGIN]]================================
+        --  [Guild stuff]
 
-            --[Guild stuff]
+        local checkIfNoGuildChannelMessageIsAllowed = false
+
+        --Is the guildNr given? Check if it is valid
+        if doNotPlayGuildMasterSound == false and guildNr ~= nil then
+            if guildNr < 1 then guildNr = 1 end
+            local maxGuilds = GetNumGuilds()
+            if guildNr > maxGuilds then guildNr = maxGuilds end
+        else
+            doNotPlayGuildMasterSound = true
+        end
+        --Is it a guild master message and shall we play a sound for the guildmaster messages?
+        if doNotPlayGuildMasterSound == false then
             --Is the message's channel a guild channel?
             if guildNrOfMessageChannel ~= nil then
-                --Is it a guild master message and shall we play a sound for the guildmaster messages?
-                if isMessageFromGuildMaster == true and soundToPlayForGuildMaster ~= nil then
-                    --Which guild's guildMaster wrote a message? Compare to the used message channel's assigned guildNr
-                    if guildNr ~= nil and guildNr == guildNrOfMessageChannel then
-                        --GuildMaster sound should only be played if the current chat tab is the same as the message's chat tab?
-                        if not playSoundWithActiveTabGuildMaster then
-                            --Check the current chat tab and the message's chat tab, and compare
-                            if not currentChatTabEqualsMessageChatTab == true then
-                                --Chat tabs are different: Play the sound of the GuildMaster
-                                doNotPlayGuildMasterSound = true
-                            end
+                --Which guild's guildMaster wrote a message? Compare to the used message channel's assigned guildNr
+                if guildNr ~= nil and guildNr == guildNrOfMessageChannel then
+                    --GuildMaster sound should only be played if the current chat tab is NOT the same as the message's chat tab?
+                    if not playSoundWithActiveTabGuildMaster == true then
+                        --Check the current chat tab and the message's chat tab, and compare them.
+                        if currentChatTabEqualsMessageChatTab == true then
+                            --Chat tabs are the same: Don't play the sound of the GuildMaster
+                            doNotPlayGuildMasterSound = true
                         end
                     end
+                    checkIfNoGuildChannelMessageIsAllowed = true
+                else
+                    --Guild master of another guild is writing->Will be handled in it's own event callback
+                    doNotPlayGuildMasterSound = true
+                end
+            else
+                --No guild channel message
+                checkIfNoGuildChannelMessageIsAllowed = true
+            end
+        end
+        --Additional checks, if guild sound should still be played (until here)
+        if doNotPlayGuildMasterSound == false and checkIfNoGuildChannelMessageIsAllowed == true then
+            --Play the sound only if the message came in at a guild channel
+            if onlyPlayGuildMasterSoundOnGuildTabs == true then
+                local isGuildChatChannel = guildChatChannels[messageType] or false
+                if not isGuildChatChannel then
+                    doNotPlayGuildMasterSound = true
                 end
             end
+        end
 
+        --  [Group stuff]
+        --Group leader checks
+        if doNotPlayGroupLeaderSound == false then
+            --GroupLeader sound should only be played if the current chat tab is NOT the same as the message's chat tab?
+            if not playSoundWithActiveTabGroupMaster == true then
+                --Check the current chat tab and the message's chat tab, and compare them.
+                if currentChatTabEqualsMessageChatTab == true then
+                    --Chat tabs are the same: Don't play the sound of the GroupLeader
+                    doNotPlayGroupLeaderSound = true
+                end
+            end
+        end
+        --==================[[Special checks - END]]================================
+
+
+        --==================[[Normal checks - END]]================================
+        --A sound to play was chosen for the chat channel of the message?
+        if soundToPlay and soundToPlay > 1 then
             --[[Normal checks]]
             --Play the sound even with active chat tab = chat tab of the chat message?
             -->No further checks needed than
-            if not withActiveTab then
-                soundToPlayForChatChannel = soundToPlay
-            elseif withActiveTab and not currentChatTabEqualsMessageChatTab == true then
+            if withActiveTab or (not withActiveTab and currentChatTabEqualsMessageChatTab == false) then
                 soundToPlayForChatChannel = soundToPlay
             end
         end
+        --==================[[Normal checks - END]]================================
     end
 
     --The sound to play later on (if it's NIL the chat channel sound will be played!)
@@ -299,10 +346,13 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
         --Special checks
         local doNotRunThisCode = false
         --GuildMaster sound but shouldn't be played?
-        if isMessageFromGuildMaster == true and doNotPlayGuildMasterSound == true then
+        if (isMessageFromGuildMaster == true and doNotPlayGuildMasterSound == true)
+        --GroupLeader sound but shouldn't be played?
+         or (isGroupLeaderSound == true and doNotPlayGroupLeaderSound == true)
+        then
             doNotRunThisCode = true
         end
-
+--d("== doNotRunThisCode: " ..tostring(doNotRunThisCode))
         --Shall we run this code? Or only play the standard chat message sound?
         if not doNotRunThisCode then
             --Priorize the sound play order
@@ -320,32 +370,32 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
             local soundToPlayMapping = {
                 --Group Leader
                 [FCOCTB_CHAT_SOUND_GROUP_LEADER] = {
-                    ["enabled"] = preferedSoundForMultipleMapping[1],
+                    ["enabled"] = preferedSoundForMultipleMapping[FCOCTB_CHAT_SOUND_GROUP_LEADER],
                     ["sound"]   = soundToPlayForGroupLeader,
                 },
                 --Guild master
                 [FCOCTB_CHAT_SOUND_GUILD_MASTER] = {
-                    ["enabled"] = preferedSoundForMultipleMapping[2],
+                    ["enabled"] = preferedSoundForMultipleMapping[FCOCTB_CHAT_SOUND_GUILD_MASTER],
                     ["sound"]   = soundToPlayForGuildMaster,
                 },
                 --Friend
                 [FCOCTB_CHAT_SOUND_FRIEND] = {
-                    ["enabled"] = preferedSoundForMultipleMapping[3],
+                    ["enabled"] = preferedSoundForMultipleMapping[FCOCTB_CHAT_SOUND_FRIEND],
                     ["sound"]   = soundToPlayForFriend,
                 },
                 --Text was found
                 [FCOCTB_CHAT_SOUND_TEXT] = {
-                    ["enabled"] = preferedSoundForMultipleMapping[4],
+                    ["enabled"] = preferedSoundForMultipleMapping[FCOCTB_CHAT_SOUND_TEXT],
                     ["sound"]   = soundToPlayForTextFound,
                 },
                 --Chat channel
                 [FCOCTB_CHAT_SOUND_CHANNEL] = {
-                    ["enabled"] = preferedSoundForMultipleMapping[5],
+                    ["enabled"] = preferedSoundForMultipleMapping[FCOCTB_CHAT_SOUND_CHANNEL],
                     ["sound"]   = soundToPlayForChatChannel,
                 },
                 --Character name was found
                 [FCOCTB_CHAT_SOUND_CHARACTER] = {
-                    ["enabled"] = preferedSoundForMultipleMapping[6],
+                    ["enabled"] = preferedSoundForMultipleMapping[FCOCTB_CHAT_SOUND_CHARACTER],
                     ["sound"]   = soundToPlayForCharacterName,
                 },
             }
@@ -379,8 +429,6 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
         end
     end
 
---d("PreferredSound: " .. tostring(settings.preferedSoundForMultiple) .. ", Enabled: " .. tostring(soundToPlayNow["enabled"]) .. ", doNotPlayGuildMasterSound: " ..tostring(doNotPlayGuildMasterSound))
---d("PreferredSound: " .. tostring(settings.preferedSoundForMultiple) .. ", doNotPlayGuildMasterSound: " ..tostring(doNotPlayGuildMasterSound))
     --Play a special sound now?
     if soundToPlayNow ~= nil and soundToPlayNow["sound"] ~= nil then
         PlaySound(SOUNDS[FCOCTB.sounds[soundToPlayNow["sound"]]])
@@ -498,7 +546,7 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
                 FCOChatTabBrain_CheckLastChatChannel(messageType, true)
             end
         end
-        --Abort here
+        --Abort here as we do not check sounds for our own sent messages
         return
     end
 
@@ -693,13 +741,13 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
             if settings.playSoundOnGroupLeader ~= nil and settings.playSoundOnGroupLeader ~= "" then
                 --Are we grouped?
                 isGrouped = (GetGroupSize() > 1) or false
-                if isGrouped then
+                if isGrouped == true then
                     --Preset the check variable with true
                     isGroupLeaderSound = true
                     if settings.groupLeaderSoundInPvPOnly then
                         isGroupLeaderSound = IsPlayerInAvAWorld()
                     end
-                    if isGroupLeaderSound then
+                    if isGroupLeaderSound == true then
                         local groupLeader = GetRawUnitName(GetGroupLeaderUnitTag())
                         if groupLeader == nil or groupLeader == "" then
                             isGroupLeaderSound = false

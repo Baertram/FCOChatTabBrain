@@ -2160,14 +2160,23 @@ function FCOCTB.BuildAddonMenu()
                         },
                         {
                             type = "checkbox",
+                            name = FCOCTBlocVarsCTB["options_chat_play_sound_guildmaster_only_guilds"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_guildmaster_only_guilds_tooltip"],
+                            getFunc = function() return FCOCTBsettings.playSoundOnGuildMasterOnlyGuildTabs end,
+                            setFunc = function(value) FCOCTBsettings.playSoundOnGuildMasterOnlyGuildTabs = value end,
+                            default = FCOCTBdefSettings.playSoundOnGuildMasterOnlyGuildTabs,
+                            disabled = function() return FCOCTBsettings.disableChatSounds or FCOCTBsettings.playSoundOnGuildMaster == 1 end,
+                        },
+                        {
+                            type = "checkbox",
                             name = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active"],
                             tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active_tooltip"],
                             getFunc = function() return FCOCTBsettings.playSoundWithActiveTabGuildMaster end,
                             setFunc = function(value) FCOCTBsettings.playSoundWithActiveTabGuildMaster = value end,
                             disabled = function() return FCOCTBsettings.disableChatSounds or FCOCTBsettings.playSoundOnGuildMaster == 1 end,
+                            default = FCOCTBdefSettings.playSoundWithActiveTabGuildMaster,
                             reference = "FCOChatTabBrain_Settings_PlaySoundWithActiveTabGuildMaster",
                         },
-
                         {
                             type = 'slider',
                             name = FCOCTBlocVarsCTB["options_chat_play_sound_guild1_tab"],
@@ -2641,6 +2650,15 @@ function FCOCTB.BuildAddonMenu()
                             default = FCOCTBdefSettings.playSoundOnGroupLeader,
                             reference = "FCOChatTabBrain_Settings_PlaySoundGroupleader",
                             disabled = function() return FCOCTBsettings.disableChatSounds end
+                        },
+                        {
+                            type = "checkbox",
+                            name = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active_tooltip"],
+                            getFunc = function() return FCOCTBsettings.playSoundWithActiveTabGroupLeader end,
+                            setFunc = function(value) FCOCTBsettings.playSoundWithActiveTabGroupLeader = value end,
+                            disabled = function() return FCOCTBsettings.disableChatSounds or FCOCTBsettings.playSoundOnGroupLeader == 1 end,
+                            default = FCOCTBdefSettings.playSoundWithActiveTabGroupLeader,
                         },
                         {
                             type = "checkbox",
