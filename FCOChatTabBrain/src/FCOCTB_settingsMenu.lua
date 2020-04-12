@@ -73,7 +73,7 @@ function FCOCTB.BuildAddonMenu()
         [FCOCTB_CHAT_SOUND_CHANNEL]         = FCOCTBlocVarsCTB["options_chat_prefer_play_sound_on_chat_channel"],
         [FCOCTB_CHAT_SOUND_CHARACTER]       = FCOCTBlocVarsCTB["options_chat_prefer_play_sound_on_character_name"],
     }
-    local FCOCTBSettingsPanel = LAM:RegisterAddonPanel(FCOCTBaddonVars.gAddonName, panelData)
+    local FCOCTBSettingsPanel = LAM:RegisterAddonPanel(FCOCTBaddonVars.gAddonName .. "_LAM", panelData)
     --The comboxboes with the chat tab control names
     local chatTabLAMControls = {
         ["FCOChatTabBrainTabAfterIdle"] = FCOCTBsettings.switchToDefaultChatTabAfterIdleTabId,
@@ -2902,6 +2902,6 @@ function FCOCTB.BuildAddonMenu()
         }, -- submenu chat sounds
 
     } -- closing LAM optionsTable
-    LAM:RegisterOptionControls(FCOCTBaddonVars.gAddonName, optionsTable)
+    LAM:RegisterOptionControls(FCOCTBaddonVars.gAddonName .. "_LAM", optionsTable)
 end
 

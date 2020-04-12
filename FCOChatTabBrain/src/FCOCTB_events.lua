@@ -675,14 +675,16 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
     --Do not check for friend amd don't parse message text if a monster/NPC is speaking.
     --Will be changed as ZOs implements a monster friends list :-p
     if messageType ~= CHAT_CHANNEL_MONSTER_SAY and messageType ~= CHAT_CHANNEL_MONSTER_YELL and messageType ~= CHAT_CHANNEL_MONSTER_WHISPER then
+--d(">checking messageText for keywords")
         local messageText = ""
         if not settings.disableChatSounds then
             --Play a sound if a text is found?
-            if settings.playSoundOnTextFound ~= nil and settings.playSoundOnTextFound ~= 1 and settings.chatKeyWords ~= nil and settings.chatKeyWords ~= "" then
+            if settings.playSoundOnMessageTextFound ~= nil and settings.playSoundOnMessageTextFound ~= 1 and settings.chatKeyWords ~= nil and settings.chatKeyWords ~= "" then
                 messageText = string.gsub(text, '([%[%]%%%(%)%{%}%$%^%+])', '[%%%1]')
                 local keyWords = { zo_strsplit("\n", settings.chatKeyWords) }
                 for _,keyWord in ipairs(keyWords) do
                     keyWord = string.gsub(keyWord, '([%[%]%%%(%)%{%}%$%^%+])', '[%%%1]')
+--d(">keyword: " ..tostring(keyWord))
                     if string.match(string.lower(messageText), string.lower(keyWord)) then
                         textFound = true
                         break
@@ -956,3 +958,6 @@ function FCOCTB.Initialized()
     -- Many thanks to Garkin for his code here !!!
     EVENT_MANAGER:RegisterForEvent(addonVars.gAddonName, EVENT_PLAYER_ACTIVATED, FCOCTB.PlayerActivated)
 end
+
+
+
