@@ -74,7 +74,7 @@ end
 
 --Play a sound on incoming messages
 local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, characterName, isGroupLeaderSound, isMessageFromGuildMaster, guildNr)
-    --d("[FCOChatTabBrain_CheckPlaySound] isFriend: " .. tostring(isFriend) .. ", TextFound: " .. tostring(textFound) .. ", characterName found: " .. tostring(characterName) .. ", isGroupLeader: " .. tostring(isGroupLeaderSound) .. ", isGuildMaster: " .. tostring(isMessageFromGuildMaster) .. ", guildNr: " ..tostring(guildNr))
+--d("[FCOChatTabBrain_CheckPlaySound] messageType: " ..tostring(messageType) .. ", isFriend: " .. tostring(isFriend) .. ", TextFound: " .. tostring(textFound) .. ", characterName found: " .. tostring(characterName) .. ", isGroupLeader: " .. tostring(isGroupLeaderSound) .. ", isGuildMaster: " .. tostring(isMessageFromGuildMaster) .. ", guildNr: " ..tostring(guildNr))
     local settings = FCOCTB.settingsVars.settings
     if messageType == nil or settings.disableChatSounds then return end
     isFriend = isFriend or false
@@ -428,13 +428,14 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
             end
         end
     end
-
+--d(">soundToPlayNow: " ..tostring(soundToPlayNow) .. ", soundToPlayForChatChannel: " ..tostring(soundToPlayForChatChannel))
     --Play a special sound now?
+    local soundsTab = FCOCTB.sounds
     if soundToPlayNow ~= nil and soundToPlayNow["sound"] ~= nil then
-        PlaySound(SOUNDS[FCOCTB.sounds[soundToPlayNow["sound"]]])
+        PlaySound(SOUNDS[soundsTab[soundToPlayNow["sound"]]])
     --Play chat channel sound only
     elseif soundToPlayForChatChannel ~= nil then
-        PlaySound(SOUNDS[FCOCTB.sounds[soundToPlayForChatChannel]])
+        PlaySound(SOUNDS[soundsTab[soundToPlayForChatChannel]])
     end
 end
 
@@ -515,7 +516,7 @@ end
 --Each time a chat message comes in this function will be called
 --EVENT_CHAT_MESSAGE_CHANNEL
 local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromName, text, isCustomerService, fromDisplayName)
---d("[FCOCTB]FCOChatTabBrain_ChatMessageChannel, messageType: " .. tostring(messageType))
+--d("[FCOCTB]FCOChatTabBrain_ChatMessageChannel, messageType: " .. tostring(messageType) .. ", fromName: " ..tostring(fromName) .. "/" .. tostring(fromDisplayName) .. ", text: " ..tostring(text))
     --A chat tab change is already active? Abort here
     local supportedChatChannels = FCOCTB.mappingVars.activeChatChannels
     local supportedChatChannel = supportedChatChannels[messageType]
