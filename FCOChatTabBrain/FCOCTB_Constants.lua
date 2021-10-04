@@ -171,8 +171,9 @@ FCOCTB.chatOptionsVars.hasAllGuildMarked   = false
 
 --Whisper
 FCOCTB.whisperVars = {}
-FCOCTB.whisperVars.currentText         = ""
-FCOCTB.whisperVars.whisperReply        = false
+FCOCTB.whisperVars.currentText  = ""
+FCOCTB.whisperVars.lastReceiver = ""
+FCOCTB.whisperVars.whisperReply = false
 
 --Sounds
 FCOCTB.sounds = {}

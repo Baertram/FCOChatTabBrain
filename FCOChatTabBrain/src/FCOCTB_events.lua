@@ -1,15 +1,18 @@
 FCOCTB = FCOCTB or {}
 local FCOCTB = FCOCTB
 
---Check the incoming chat channel and save it so the next message you send will be written in THIS channel
+local chatSystem = FCOCTB.ChatSystem
+
+--Check the incoming chat channel and save it so the next message you send via RETURN key will be written in THIS channel
 local function FCOChatTabBrain_CheckLastChatChannel(messageType, overwrite)
-    --d("[FCOChatTabBrain_CheckLastChatChannel]")
+--d("[FCOChatTabBrain_CheckLastChatChannel]messageType: " ..tostring(messageType) .. ", overwrite: " ..tostring(overwrite))
     if messageType == nil then return end
     overwrite = overwrite or false
     local chatVars = FCOCTB.chatVars
     local settings = FCOCTB.settingsVars.settings
-    chatVars.lastIncomingChatChannelType = ""
-    chatVars.lastIncomingChatChannel = ""
+    local mappingVars = FCOCTB.mappingVars
+    FCOCTB.chatVars.lastIncomingChatChannelType = ""
+    FCOCTB.chatVars.lastIncomingChatChannel = ""
     --Mapping array for the settings
     local chatTabs = {
         [CHAT_CHANNEL_WHISPER]          = settings.redirectWhisperChannelId,
@@ -62,13 +65,15 @@ local function FCOChatTabBrain_CheckLastChatChannel(messageType, overwrite)
         [CHAT_CHANNEL_MONSTER_WHISPER]  = settings.autoChangeToChannelNSC,
     }
     --Shall we set the last incoming chat channel for the next outgoing chat message now?
-    if    (((chatChannelToAutoChangeTabSettings[messageType]) or (overwrite))
-            and (chatTabs[messageType] ~= nil and chatTabs[messageType] ~= 0)) then
-        chatVars.lastIncomingChatChannelType = messageType
-        local chatMessageTypeToChatChannel = FCOCTB.mappingVars.chatMessageTypeToChatChannel
-        chatVars.lastIncomingChatChannel = chatMessageTypeToChatChannel[messageType] or nil
-        if chatVars.lastIncomingChatChannel == nil then chatVars.lastIncomingChatChannel = "" end
-        --d("Last chat channel: " .. chatVars.lastIncomingChatChannel)
+    if    (
+            (overwrite or (chatChannelToAutoChangeTabSettings[messageType]))
+            and (chatTabs[messageType] ~= nil and chatTabs[messageType] ~= 0)
+    ) then
+        FCOCTB.chatVars.lastIncomingChatChannelType = messageType
+        local chatMessageTypeToChatChannel = mappingVars.chatMessageTypeToChatChannel
+        FCOCTB.chatVars.lastIncomingChatChannel = chatMessageTypeToChatChannel[messageType] or nil
+        if chatVars.lastIncomingChatChannel == nil then FCOCTB.chatVars.lastIncomingChatChannel = "" end
+--d(">Last incoming chat channel: " .. chatVars.lastIncomingChatChannel)
     end
 end
 
@@ -87,7 +92,7 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
     local guildChatChannels = FCOCTB.mappingVars.guildChatChannels
 
     --Get the current active chat tab
-    local currentChatTab = CHAT_SYSTEM.primaryContainer.currentBuffer:GetParent().tab.index
+    local currentChatTab = chatSystem.primaryContainer.currentBuffer:GetParent().tab.index
     local soundToPlayForChatChannel
     local soundToPlayForFriend
     local soundToPlayForTextFound
@@ -539,13 +544,10 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
     --Is the chat message sent by myself? Abort then
     if fromName == myAccountName or postingPerson == myAccountName or fromName == myPlayerNameRaw or postingPerson == myPlayerName then
         --Get the used chat channel so the next time we press RETURN will send another message to this chat channel, instead of the chat channel from last incoming message
-        --d("[FCOChatTabBrain_ChatMessageChannel] Sent from my own")
-        if settings.sendingMessageOverwritesChatChannel then
-            if messageType ~= nil then
-                --d("MessageType: " .. messageType)
-                --Overwrite the last incoming chat channel with your currently used chat channel
-                FCOChatTabBrain_CheckLastChatChannel(messageType, true)
-            end
+--d(">>[Outgoing] chat message by myself!")
+        if messageType ~= nil and settings.sendingMessageOverwritesChatChannel == true then
+            --Overwrite the last incoming chat channel with your currently used chat channel
+            FCOChatTabBrain_CheckLastChatChannel(messageType, true)
         end
         --Abort here as we do not check sounds for our own sent messages
         return
@@ -661,7 +663,7 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
     --Otherwise we would switch to a chat tab where no text is shown :-)
     local switchToTabIndex = chatChannelToTabs[messageType]["switchToTab"]
     if switchToTabIndex == nil then return end
-    local chatContainerId = CHAT_SYSTEM.primaryContainer.id
+    local chatContainerId = chatSystem.primaryContainer.id
     local chatChannelOptionIsEnabled = FCOCTB.CheckChatTabOptionsForCategory(messageType, switchToTabIndex, chatContainerId)
 --d(">switchToTabIndex: " .. tostring(switchToTabIndex) .. ", chatChannelOptionIsEnabled: " .. tostring(chatChannelOptionIsEnabled))
     --The chat channel could not be determined? Let's say the option is still enabled then...
@@ -767,17 +769,34 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
 
     --Get the used incoming chat channel so we can auto-set it for next outgoing message
     --> If settings enabled:
-    --> Only check if the user is not currently using the chat#s text edit control to write to another user.
-    --> At this time the user should communicate with the currnt user and not the one who has written before
-    if  (settings.dontChangeChatChannelIfTextEditActive and not FCOCTB.CheckIfChatTextEditIsUsed())
-            or not settings.dontChangeChatChannelIfTextEditActive then
-        FCOChatTabBrain_CheckLastChatChannel(messageType)
+    --> Only check if the user is not currently using the chat's text edit control to write to another user.
+    --> At this time the user should communicate with the current user and not the one who has written before/who has just send a new incoming message (at whispers e.g.)
+    local dontChangeChatChannelIfTextEditActive = settings.dontChangeChatChannelIfTextEditActive
+    local isChatTextEditUsed = FCOCTB.CheckIfChatTextEditIsUsed()
+--d(">isChatTextEditActive: " ..tostring(isChatTextEditUsed) ..", dontChangeChatChannelIfTextEditActive: " ..tostring(dontChangeChatChannelIfTextEditActive))
+    if not dontChangeChatChannelIfTextEditActive or (dontChangeChatChannelIfTextEditActive == true and not isChatTextEditUsed) then
+        FCOChatTabBrain_CheckLastChatChannel(messageType, nil)
+    end
+    --Incoming message is a whisper but we are currently typing new text?
+    if isChatTextEditUsed == true and messageType == CHAT_CHANNEL_WHISPER then
+        FCOCTB.whisperVars.lastReceiver = ""
+        --Compare the sender of the whisper with the receiver of our current message: If they differ store the current
+        --receiver in the whisper variables -> See function "FCOChatTabBrain_SetNextChatChannel"
+        local currentReceiver = chatSystem.currentReceiver
+--d(">whispering, receiver: " ..tostring(currentReceiver))
+        if (currentReceiver ~= nil and currentReceiver ~= "")
+            and (fromName ~= nil and fromName ~= "" and fromName ~= currentReceiver)
+            and (fromDisplayName ~= nil and fromDisplayName ~= "" and fromDisplayName ~= currentReceiver) then
+--d(">>set whisper 'last receiver'")
+            --Remember the current receiver of the whisper message
+            FCOCTB.whisperVars.lastReceiver = currentReceiver
+        end
     end
 
     --Kepp the chat hidden if we are in a menu? or
     --Don't change the chat tab if the chat is minimized and the setting is enabled
     local dontShowBecauseMinimized = false
-    if settings.doNotAutoOpenIfMinimized and CHAT_SYSTEM:IsMinimized() then
+    if settings.doNotAutoOpenIfMinimized and chatSystem:IsMinimized() then
         dontShowBecauseMinimized = true
     end
 
@@ -825,7 +844,7 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
         --Change the active chat tab now
         FCOCTB.ChangeChatTabNow(switchToTabIndex)
     else
-        local numChatTabs = CHAT_SYSTEM.primaryContainer and CHAT_SYSTEM.primaryContainer.windows and #CHAT_SYSTEM.primaryContainer.windows
+        local numChatTabs = chatSystem.primaryContainer and chatSystem.primaryContainer.windows and #chatSystem.primaryContainer.windows
         --Change the chat tab text color if new message arrives?
         if (settings.showChatTabColor == true
                 and (switchToTabIndex ~= nil and switchToTabIndex > 0 and (numChatTabs ~= nil and switchToTabIndex <= numChatTabs))
@@ -837,10 +856,10 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
         )
         then
             --Get the current chat tab
-            local currentTab = CHAT_SYSTEM.primaryContainer.currentBuffer:GetParent().tab
+            local currentTab = chatSystem.primaryContainer.currentBuffer:GetParent().tab
             --The tab of the incoming chat message -> Must be mapped somehow by using the index from the set settings, e.g. settings.autoOpenSystemChannelId
-            -- -> CHAT_SYSTEM.primaryContainer.windows[switchToTabIndex].tab
-            local newTabParent = CHAT_SYSTEM.primaryContainer.windows[switchToTabIndex]
+            -- -> chatSystem.primaryContainer.windows[switchToTabIndex].tab
+            local newTabParent = chatSystem.primaryContainer.windows[switchToTabIndex]
             local newTab
             if newTabParent == nil then return end
             newTab = newTabParent.tab
@@ -869,6 +888,10 @@ function FCOCTB.PlayerActivated(event)
     local addonVars = FCOCTB.addonVars
     EVENT_MANAGER:UnregisterForEvent(addonVars.gAddonName, event)
 
+    FCOCTB.ChatSystem = CHAT_SYSTEM
+    chatSystem = FCOCTB.ChatSystem
+    FCOCTB.GetChatSystem()
+
     --Load the hooks
     FCOCTB.hookChat_functions()
 
@@ -881,8 +904,8 @@ function FCOCTB.PlayerActivated(event)
     --Minimize the chat if wished
     local settings = FCOCTB.settingsVars.settings
     if settings.chatMinimizeOnLoad then
-        if not CHAT_SYSTEM:IsMinimized() then
-            CHAT_SYSTEM:Minimize()
+        if not chatSystem:IsMinimized() then
+            chatSystem:Minimize()
         end
     end
     --Load the last saved chat tab and switch to it
@@ -912,8 +935,8 @@ function FCOCTB.PlayerActivated(event)
 
     --Fix for the chat tabs moved into overflow container, introduced with patch 1.7
     --Rebuild the chat layout for the primary container
-    if CHAT_SYSTEM.primaryContainer ~= nil then
-        CHAT_SYSTEM.primaryContainer:PerformLayout()
+    if chatSystem.primaryContainer ~= nil then
+        chatSystem.primaryContainer:PerformLayout()
     end
 
     --Mark the addon as fully loaded now
@@ -928,6 +951,10 @@ function FCOCTB.Loaded(eventCode, addOnName)
     if(addOnName ~= addonVars.gAddonName) then
         return
     end
+
+    FCOCTB.ChatSystem = CHAT_SYSTEM
+    chatSystem = FCOCTB.ChatSystem
+    FCOCTB.GetChatSystem()
 
     --LibLoadedAddons
     FCOCTB.LIBLA = LibLoadedAddons
@@ -954,6 +981,10 @@ end
 
 -- Register the event "addon loaded" for this addon
 function FCOCTB.Initialized()
+    FCOCTB.ChatSystem = CHAT_SYSTEM
+    chatSystem = FCOCTB.ChatSystem
+    FCOCTB.GetChatSystem()
+
     local addonVars = FCOCTB.addonVars
     EVENT_MANAGER:RegisterForEvent(addonVars.gAddonName, EVENT_ADD_ON_LOADED, FCOCTB.Loaded)
     -- Many thanks to Garkin for his code here !!!

@@ -1,13 +1,19 @@
 FCOCTB = FCOCTB or {}
 local FCOCTB = FCOCTB
 
+local chatSystem = FCOCTB.ChatSystem
+
 --================= GLOBAL FUNCTIONS ===========================================
+
+function FCOCTB.GetChatSystem()
+    chatSystem = FCOCTB.ChatSystem
+end
 
 --Function to cycle through the last 3 chat channels at the given chat tab
 function FCOCTB.CycleChatChannel()
     FCOCTB.SetUserLastAction()
     --Get the actual chat tab (index)
-    local container = CHAT_SYSTEM.primaryContainer
+    local container = chatSystem.primaryContainer
     if not container then return nil end
     local index = container.currentBuffer:GetParent().tab.index
     --d("[FCOCTB]CycleChatChannel, tab: " .. tostring(index))
@@ -35,7 +41,7 @@ function FCOCTB.CycleChatChannel()
                         --Important to avoid dead loop
                         FCOCTB.preventerVars.noChatTextEntryCheck = true
                         --Set chat channel
-                        CHAT_SYSTEM:SetChannel(nextChatChannelAtTab, nil)
+                        chatSystem:SetChannel(nextChatChannelAtTab, nil)
                         FCOCTB.preventerVars.noChatTextEntryCheck = false
                     end
                 end
@@ -50,7 +56,7 @@ end
 function FCOCTB.CycleChatTab(chatTabIndex, doOverride)
     doOverride = doOverride or false
     if not doOverride then FCOCTB.SetUserLastAction() end
-    local container = CHAT_SYSTEM.primaryContainer
+    local container = chatSystem.primaryContainer
     if not container then return nil end
     local index = container.currentBuffer:GetParent().tab.index
     if type(chatTabIndex) ~= "number" then
@@ -74,10 +80,10 @@ function FCOCTB.CycleChatTab(chatTabIndex, doOverride)
         FCOCTB.preventerVars.doNotDoShiftClickCheck = true
         container.tabGroup:SetClickedButton(container.windows[index].tab)
         --Reopen the chat if wished
-        local chatIsMinimized = CHAT_SYSTEM:IsMinimized()
+        local chatIsMinimized = chatSystem:IsMinimized()
         local settings = FCOCTB.settingsVars.settings
         if settings.reOpenChatIfMinimized and chatIsMinimized then
-            CHAT_SYSTEM:Maximize()
+            chatSystem:Maximize()
         end
         --Fade-In the chat if wished
         if settings.fadeInChatOnCycle and not chatIsMinimized then
@@ -115,8 +121,8 @@ end
 --Function to get the active chat channel at a chattab
 function FCOCTB.GetActiveChatChannelAtTab()
     local activeChannelAtTab = 0
-    if CHAT_SYSTEM and CHAT_SYSTEM.currentChannel then
-        activeChannelAtTab = CHAT_SYSTEM.currentChannel
+    if chatSystem and chatSystem.currentChannel then
+        activeChannelAtTab = chatSystem.currentChannel
     end
     return activeChannelAtTab
 end
@@ -125,7 +131,7 @@ end
 function FCOCTB.SaveLastActiveChatTab()
     local settings = FCOCTB.settingsVars.settings
     if settings.rememberLastActiveChatTab then
-        local container = CHAT_SYSTEM.primaryContainer
+        local container = chatSystem.primaryContainer
         if not container then return nil end
         local chatTabIndex = container.currentBuffer:GetParent().tab.index
         if chatTabIndex == nil then return false end
@@ -135,10 +141,10 @@ end
 
 --Check if the user is currently using the chat edit field
 function FCOCTB.CheckIfChatTextEditIsUsed()
-    local textEntry = CHAT_SYSTEM.textEntry
-    local chatEditText 	= textEntry:GetText()
-    if     (chatEditText ~= nil and chatEditText ~= "" and chatEditText ~= " ")
-            or (textEntry:IsOpen() or textEntry:IsAutoCompleteOpen()) then
+    local textEntry = chatSystem.textEntry
+    local chatEditText = textEntry and textEntry:GetText()
+    if (chatEditText ~= nil and chatEditText ~= "" and chatEditText ~= " ")
+       or (textEntry:IsOpen() or textEntry:IsAutoCompleteOpen()) then
         return true
     else
         return false
@@ -147,8 +153,8 @@ end
 
 --Check if the chat window is used in any way
 function FCOCTB.CheckIfChatWindowUsed()
-    if CHAT_SYSTEM == nil or CHAT_SYSTEM.primaryContainer == nil then return false end
-    local retVal = CHAT_SYSTEM.primaryContainer:IsMouseInside()
+    if chatSystem == nil or chatSystem.primaryContainer == nil then return false end
+    local retVal = chatSystem.primaryContainer:IsMouseInside()
     --If the mouse is inside the chat window container & if the chat minimization timer is currently active -> Reset the timer for the automatic minimization
     if retVal and FCOCTB.chatVars.chatMinimizeTimerActive then
         FCOCTB.chatVars.lastIncomingMessage = GetTimeStamp() -- needed so the auto minimize feature starts to count the time difference from now
@@ -160,7 +166,7 @@ end
 function FCOCTB.ClearChatBuffer(tab)
     local currentChatBuffer
     if tab == nil then
-        currentChatBuffer = CHAT_SYSTEM.primaryContainer.currentBuffer
+        currentChatBuffer = chatSystem.primaryContainer.currentBuffer
     else
         currentChatBuffer = tab:GetParent().container.currentBuffer
     end
@@ -182,7 +188,7 @@ end
 
 --Get the shown text on the chat tabs
 function FCOCTB.GetChatTabNames()
-    local chatTabs = CHAT_SYSTEM.tabPool.m_Active
+    local chatTabs = chatSystem.tabPool.m_Active
     if chatTabs ~= nil and #chatTabs >= 1 then
         local chatVars = FCOCTB.chatVars
         local localizationVarsCTB = FCOCTB.localizationVars.fco_ctb_loc
@@ -238,15 +244,18 @@ end
 --last incoming chat message time with current time + set timeout, then minimize the chat if applicable
 function FCOCTB.MinimizeChatCheck()
     --Compare the current timestamp with last chat message timestamp and minimize chat if we reached the user defined timeout
-    if    not FCOCTB.CheckIfChatTextEditIsUsed() and not FCOCTB.CheckIfChatWindowUsed()
-            and FCOCTB.settingsVars.settings.autoMinimizeTimeout ~= nil and FCOCTB.settingsVars.settings.autoMinimizeTimeout > 0
-            and FCOCTB.chatVars.lastIncomingMessage ~= nil and FCOCTB.chatVars.lastIncomingMessage ~= 0
-            and CHAT_SYSTEM ~= nil and not CHAT_SYSTEM:IsMinimized() then
+    --and if the chat window is currently not used (mouse is above it) and no text is typed into the chat editbox
+    local autoMinimizeTimeout = FCOCTB.settingsVars.settings.autoMinimizeTimeout
+    local lastIncomingMessage = FCOCTB.chatVars.lastIncomingMessage
+    if autoMinimizeTimeout ~= nil and autoMinimizeTimeout > 0
+            and lastIncomingMessage ~= nil and lastIncomingMessage ~= 0
+            and chatSystem ~= nil and not chatSystem:IsMinimized()
+            and not FCOCTB.CheckIfChatWindowUsed() and not FCOCTB.CheckIfChatTextEditIsUsed() then
         local currentTime = GetTimeStamp()
-        if currentTime <= FCOCTB.chatVars.lastIncomingMessage then return end
-        local difference = currentTime - FCOCTB.chatVars.lastIncomingMessage
-        if difference > 0 and difference >= FCOCTB.settingsVars.settings.autoMinimizeTimeout then
-            CHAT_SYSTEM:Minimize()
+        if currentTime <= lastIncomingMessage then return end
+        local difference = currentTime -lastIncomingMessage
+        if difference > 0 and difference >= autoMinimizeTimeout then
+            chatSystem:Minimize()
         end
     end
 end
@@ -264,13 +273,15 @@ function FCOCTB.ChangeChatTabNow(chatTabIndex, doOverride)
         if not doOverride then return false end
     end
     --Current active chat tab?
-    local currentTab 	= CHAT_SYSTEM.primaryContainer.currentBuffer:GetParent().tab
+    local primaryContainer = chatSystem.primaryContainer
+    local currentTab 	= primaryContainer.currentBuffer:GetParent().tab
     local currentIndex 	= currentTab.index
-    --Abort if no valid chatTabIndex is given, the given index is the same as the currently selected chat tab, a messgae is written currently
+    --Abort if no valid chatTabIndex is given, the given index is the same as the currently selected chat tab, or a message is currently written
     if  chatTabIndex == nil or chatTabIndex == 0 or currentIndex == chatTabIndex
-        or FCOCTB.CheckIfChatTextEditIsUsed()
-        or CHAT_SYSTEM.primaryContainer.windows[chatTabIndex].tab == nil
-    then return end
+        or primaryContainer.windows[chatTabIndex].tab == nil
+        or FCOCTB.CheckIfChatTextEditIsUsed() then
+        return
+    end
     FCOCTB.preventerVars.changingToNewChatTab = true
     --Change the chat tab now to new chat tab
     FCOCTB.CycleChatTab(chatTabIndex)

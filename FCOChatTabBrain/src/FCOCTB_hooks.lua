@@ -1,11 +1,14 @@
 FCOCTB = FCOCTB or {}
 local FCOCTB = FCOCTB
 
+local addonName = FCOCTB.addonVars.gAddonName
+local chatSystem = FCOCTB.ChatSystem
+
 --If the chat options dialog gets hidden
 local function FCOChatTabBrain_ChatOptionsDialogOnHide(chatContainer)
     --Activate the minimization timer again if auto minimize is activated in the settings
     if FCOCTB.settingsVars.settings.autoMinimizeTimeout ~= nil and FCOCTB.settingsVars.settings.autoMinimizeTimeout > 0 and not FCOCTB.chatVars.chatMinimizeTimerActive then
-        FCOCTB.chatVars.chatMinimizeTimerActive = EVENT_MANAGER:RegisterForUpdate(FCOCTB.addonVars.gAddonName.."ChatMinimizeCheck", 1000, FCOCTB.MinimizeChatCheck)
+        FCOCTB.chatVars.chatMinimizeTimerActive = EVENT_MANAGER:RegisterForUpdate(addonName.."ChatMinimizeCheck", 1000, FCOCTB.MinimizeChatCheck)
         FCOCTB.chatVars.lastIncomingMessage = GetTimeStamp() -- needed so the auto minimize feature starts to count the time difference from now
     end
     --Update the chat tabs from now in half a second
@@ -93,7 +96,7 @@ local function FCOChatTabBrain_ChatOptionsDialogOnShow(chatContainer, chatTabInd
     local localizationVarsCTB = FCOCTB.localizationVars.fco_ctb_loc
 
     --Check if the timer is active and disable it then
-    if chatVars.chatMinimizeTimerActive and EVENT_MANAGER:UnregisterForUpdate(FCOCTB.addonVars.gAddonName.."ChatMinimizeCheck") then
+    if chatVars.chatMinimizeTimerActive and EVENT_MANAGER:UnregisterForUpdate(addonName.."ChatMinimizeCheck") then
         chatVars.chatMinimizeTimerActive = false
     end
     --Add a checkbox to mark/unmark all options now
@@ -234,30 +237,33 @@ local function FCOChatTabBrain_OnDialog1IsHidden(dialogCtrl)
     end
 end
 
---Redirect the chat input to a specific tab, e.g. whispers to a special whisper tab
+--Redirect the chat input to a specific tab, e.g. whispers to a special chat tab where the whisper chat channel category was enabled to show
+--> In the settings of FCOCTB you choose the chat tab to switch to for "whisper messages"
 local function FCOChatTabBrain_RedirectToChannel(chatChannelId, recipientName, commandHistoryIndex)
     local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
     if redirectWhisperChannelId == nil or redirectWhisperChannelId == 0 then return end
-    local maxChatChannels = #CHAT_SYSTEM.primaryContainer.windows or 1
+    local maxChatChannels = #chatSystem.primaryContainer.windows or 1
     --Change the channel to the selected whisper redirect channel
     if chatChannelId ~= 0 and chatChannelId <= maxChatChannels then
         FCOCTB.CycleChatTab(chatChannelId)
     end
-    local chatTextEntry = CHAT_SYSTEM.textEntry
+    local chatTextEntry = chatSystem.textEntry
     --Update the recipient name and the whisper message at the whisper tab edit field?
+    local currentWhisperText = FCOCTB.whisperVars.currentText
     if recipientName ~= nil and commandHistoryIndex ~= nil and commandHistoryIndex >= 1 then
         local commandHistoryText = chatTextEntry.commandHistory.entries[commandHistoryIndex]
         if commandHistoryText ~= nil and commandHistoryText ~= "" then
             --d("Recipient name: " .. recipientName .. ", Chat text: " .. commandHistoryText)
+            --IMportant to avoid deadloop!
             FCOCTB.preventerVars.noChatTextEntryCheck = true
-            --CHAT_SYSTEM.textEntry.system:StartTextEntry("/w " .. recipientName .. " ")
-            CHAT_SYSTEM:SetChannel(CHAT_CHANNEL_WHISPER, recipientName)
+            --chatSystem.textEntry.system:StartTextEntry("/w " .. recipientName .. " ")
+            chatSystem:SetChannel(CHAT_CHANNEL_WHISPER, recipientName)
             --Auto complete the selected whisper name
-            --CHAT_SYSTEM.textEntry.targetAutoComplete:OnCommit(COMMIT_BEHAVIOR_KEEP_FOCUS, AUTO_COMPLETION_SELECTED_BY_TAB)
+            --chatSystem.textEntry.targetAutoComplete:OnCommit(COMMIT_BEHAVIOR_KEEP_FOCUS, AUTO_COMPLETION_SELECTED_BY_TAB)
             --Fill in the text that you typed before at another tab, the whisper message
-            if FCOCTB.whisperVars.currentText ~= "" then
+            if currentWhisperText ~= "" then
                 --chatTextEntry.system:StartTextEntry(FCOCTB.whisperVars.currentText)
-                StartChatInput(FCOCTB.whisperVars.currentText)
+                StartChatInput(currentWhisperText)
             else
                 --chatTextEntry.system:StartTextEntry(commandHistoryText)
                 StartChatInput(commandHistoryText)
@@ -265,22 +271,23 @@ local function FCOChatTabBrain_RedirectToChannel(chatChannelId, recipientName, c
 --d(">FCOChatTabBrain_RedirectToChannel. Whisper to, chat entry.")
             FCOCTB.preventerVars.noChatTextEntryCheck = false
         end
+
     --Only update the recipient name and the whisper chat tab
     --Coming here by pressing tab key upon auto complete of the whisper to name
     --or by entering /w /t /f and the recipient name and a text
     elseif recipientName ~= nil and commandHistoryIndex == nil then
         --d("Recipient name: " .. recipientName)
         FCOCTB.preventerVars.noChatTextEntryCheck = true
-        --CHAT_SYSTEM.textEntry.system:StartTextEntry("/w " .. recipientName .. " ")
-        CHAT_SYSTEM:SetChannel(CHAT_CHANNEL_WHISPER, recipientName)
+        --chatSystem.textEntry.system:StartTextEntry("/w " .. recipientName .. " ")
+        chatSystem:SetChannel(CHAT_CHANNEL_WHISPER, recipientName)
         --Auto complete the selected whisper name
-        --CHAT_SYSTEM.textEntry.targetAutoComplete:OnCommit(COMMIT_BEHAVIOR_KEEP_FOCUS, AUTO_COMPLETION_SELECTED_BY_TAB)
+        --chatSystem.textEntry.targetAutoComplete:OnCommit(COMMIT_BEHAVIOR_KEEP_FOCUS, AUTO_COMPLETION_SELECTED_BY_TAB)
         FCOCTB.preventerVars.noChatTextEntryCheck = false
-        if FCOCTB.whisperVars.currentText ~= "" then
+        if currentWhisperText ~= "" then
             zo_callLater(function()
                 --chatTextEntry.editControl:SetText(FCOCTB.whisperVars.currentText)
                 --chatTextEntry.editControl:TakeFocus()
-                StartChatInput(FCOCTB.whisperVars.currentText)
+                StartChatInput(currentWhisperText)
 --d(">FCOChatTabBrain_RedirectToChannel. Whisper to, chat entry: Took focus")
             end, 50)
         end
@@ -301,7 +308,7 @@ local function FCOChatTabBrain_CheckChatChannelRedirect(text, channel, recipient
         --Add chat channel whisper, so only the chat tab will be switched
         channel = CHAT_CHANNEL_WHISPER
     end
-    local currentIndex = CHAT_SYSTEM.primaryContainer.currentBuffer:GetParent().tab.index
+    local currentIndex = chatSystem.primaryContainer.currentBuffer:GetParent().tab.index
     --d("[FCOChatTabBrain_CheckChatChannelRedirect] CHAT_CHANNEL_WHISPER=" .. CHAT_CHANNEL_WHISPER .. ", channel="..channel .. ", currentIndex: " .. currentIndex .. ", RecipientName: " .. recipientName .. ", currentWhisperText: " ..tostring(FCOCTB.whisperVars.currentText))
     if currentIndex ~= redirectWhisperChannelId and channel == CHAT_CHANNEL_WHISPER then
         if FCOCTB.whisperVars.currentText == " " then FCOCTB.whisperVars.currentText = "" end
@@ -316,18 +323,18 @@ end
 
 --Set the chat channel in the chat to this currentChannel so you answer in this channel if you press the "start chat" key
 local function FCOChatTabBrain_SetNextChatChannel(currentChannel)
-    --d("[FCOChatTabBrain_SetNextChatChannel] lastIncomingChannel: " .. FCOCTB.chatVars.lastIncomingChatChannel .. "(".. FCOCTB.chatVars.lastIncomingChatChannelType .."), currentChannel:" .. currentChannel)
+    local chatVars = FCOCTB.chatVars
     --Only go on if we received a message before, and we are not in the same channel already
     --Exception: Last incoming message was a whisper. We need to add the recipient then
-    local chatVars = FCOCTB.chatVars
     local settings = FCOCTB.settingsVars.settings
     local lastIncomingChatChannel = chatVars.lastIncomingChatChannel
     local lastIncomingChatChannelType = chatVars.lastIncomingChatChannelType
+--d("[FCOChatTabBrain_SetNextChatChannel] lastIncomingChannel: " .. lastIncomingChatChannel .. " (".. lastIncomingChatChannelType .."), currentChannel:" .. currentChannel)
     if lastIncomingChatChannel == nil or lastIncomingChatChannel == ""
             or lastIncomingChatChannelType == nil or lastIncomingChatChannelType == ""
             or (currentChannel == lastIncomingChatChannelType and currentChannel ~= CHAT_CHANNEL_WHISPER) then return end
     --Get the current active chat tab
-    local currentIndex = CHAT_SYSTEM.primaryContainer.currentBuffer:GetParent().tab.index
+    local currentIndex = chatSystem.primaryContainer.currentBuffer:GetParent().tab.index
     --Only go on if the active chat tab equals the chat tab where we got the last message
     local chatTabs = {
         [CHAT_CHANNEL_WHISPER]          = settings.redirectWhisperChannelId,
@@ -359,14 +366,28 @@ local function FCOChatTabBrain_SetNextChatChannel(currentChannel)
     --Important to avoid dead loop
     FCOCTB.preventerVars.noChatTextEntryCheck = true
     --Write the channel of the last received chat message to the chat so you can directly answer
-    --CHAT_SYSTEM.textEntry.system:StartTextEntry(chatVars.lastIncomingChatChannel .. " ")
+    --chatSystem.textEntry.system:StartTextEntry(chatVars.lastIncomingChatChannel .. " ")
     --If last incoming message was a whsiper message, we need to answer
     if lastIncomingChatChannelType == CHAT_CHANNEL_WHISPER then
-        --Answer last whisper
-        ChatReplyToLastWhisper() --ESO standard function
+        --20201-10-03 FCOCTB v0.4.5
+        --Answer last whisper, but if we were currently typing new text as the last whisper was incoming:
+        --Keep the receiver of the whisper we were typing to! And do not answer the last incoming whisper message.
+        local lastWhisperReceiver = FCOCTB.whisperVars.lastReceiver
+        local currentReceiver = chatSystem.currentReceiver
+--d(">currentReceiver: " ..tostring(currentReceiver) .. ", lastWhisperReceiver: " ..tostring(lastWhisperReceiver))
+        if (lastWhisperReceiver ~= nil and lastWhisperReceiver ~= "") and (currentReceiver ~= nil and currentReceiver ~= "")
+            and currentReceiver ~= lastWhisperReceiver then
+            chatSystem:SetChannel(CHAT_CHANNEL_WHISPER, lastWhisperReceiver)
+            FCOCTB.whisperVars.lastReceiver = ""
+        else
+            --We were not typing to someone else as the last incoming whisper appeared and thus we just need to answer the last incoming
+            --whisper message now
+            FCOCTB.whisperVars.lastReceiver = ""
+            ChatReplyToLastWhisper() --ESO standard function
+        end
     else
         --No whisper message
-        CHAT_SYSTEM:SetChannel(chatVars.lastIncomingChatChannelType, nil)
+        chatSystem:SetChannel(lastIncomingChatChannelType, nil)
     end
     FCOCTB.preventerVars.noChatTextEntryCheck = false
 end
@@ -397,29 +418,30 @@ end
 
 --Chat hooks
 function FCOCTB.hookChat_functions()
+    chatSystem = FCOCTB.ChatSystem
     --Chat hooks
 
     --Run this code once as the buttons might be shown and will be only updated as you mouse hover the chat and leave it again
-    CHAT_SYSTEM.mailButton:SetInheritAlpha(true)
-    CHAT_SYSTEM.mailLabel:SetInheritAlpha(true)
-    CHAT_SYSTEM.friendsButton:SetInheritAlpha(true)
-    CHAT_SYSTEM.friendsLabel:SetInheritAlpha(true)
-    CHAT_SYSTEM.notificationsButton:SetInheritAlpha(true)
-    CHAT_SYSTEM.notificationsLabel:SetInheritAlpha(true)
-    CHAT_SYSTEM.agentChatButton:SetInheritAlpha(true)
+    chatSystem.mailButton:SetInheritAlpha(true)
+    chatSystem.mailLabel:SetInheritAlpha(true)
+    chatSystem.friendsButton:SetInheritAlpha(true)
+    chatSystem.friendsLabel:SetInheritAlpha(true)
+    chatSystem.notificationsButton:SetInheritAlpha(true)
+    chatSystem.notificationsLabel:SetInheritAlpha(true)
+    chatSystem.agentChatButton:SetInheritAlpha(true)
 
     --FadeIn
-    ZO_PreHook(CHAT_SYSTEM.primaryContainer, "FadeIn", function(delay)
+    ZO_PreHook(chatSystem.primaryContainer, "FadeIn", function(delay)
         if FCOCTB.settingsVars.settings.fadeOutChatButtons and not FCOCTB.preventerVars.fadingIn then
             FCOCTB.preventerVars.fadingIn = true
             FCOCTB.preventerVars.fadingOut	= false
-            CHAT_SYSTEM.mailButton:SetInheritAlpha(true)
-            CHAT_SYSTEM.mailLabel:SetInheritAlpha(true)
-            CHAT_SYSTEM.friendsButton:SetInheritAlpha(true)
-            CHAT_SYSTEM.friendsLabel:SetInheritAlpha(true)
-            CHAT_SYSTEM.notificationsButton:SetInheritAlpha(true)
-            CHAT_SYSTEM.notificationsLabel:SetInheritAlpha(true)
-            CHAT_SYSTEM.agentChatButton:SetInheritAlpha(true)
+            chatSystem.mailButton:SetInheritAlpha(true)
+            chatSystem.mailLabel:SetInheritAlpha(true)
+            chatSystem.friendsButton:SetInheritAlpha(true)
+            chatSystem.friendsLabel:SetInheritAlpha(true)
+            chatSystem.notificationsButton:SetInheritAlpha(true)
+            chatSystem.notificationsLabel:SetInheritAlpha(true)
+            chatSystem.agentChatButton:SetInheritAlpha(true)
         end
     end) -- ZO_PreHook(FadeIn)
 
@@ -428,13 +450,13 @@ function FCOCTB.hookChat_functions()
         if FCOCTB.settingsVars.settings.fadeOutChatButtons and not FCOCTB.preventerVars.fadingOut then
             FCOCTB.preventerVars.fadingIn = false
             FCOCTB.preventerVars.fadingOut = true
-            CHAT_SYSTEM.mailButton:SetInheritAlpha(true)
-            CHAT_SYSTEM.mailLabel:SetInheritAlpha(true)
-            CHAT_SYSTEM.friendsButton:SetInheritAlpha(true)
-            CHAT_SYSTEM.friendsLabel:SetInheritAlpha(true)
-            CHAT_SYSTEM.notificationsButton:SetInheritAlpha(true)
-            CHAT_SYSTEM.notificationsLabel:SetInheritAlpha(true)
-            CHAT_SYSTEM.agentChatButton:SetInheritAlpha(true)
+            chatSystem.mailButton:SetInheritAlpha(true)
+            chatSystem.mailLabel:SetInheritAlpha(true)
+            chatSystem.friendsButton:SetInheritAlpha(true)
+            chatSystem.friendsLabel:SetInheritAlpha(true)
+            chatSystem.notificationsButton:SetInheritAlpha(true)
+            chatSystem.notificationsLabel:SetInheritAlpha(true)
+            chatSystem.agentChatButton:SetInheritAlpha(true)
         end
         if container == nil then return false end
         if container.fadeInReferences > 0 then return end
@@ -453,7 +475,7 @@ function FCOCTB.hookChat_functions()
         --Prevent normal chat's FadeOut() function
         return true
     end
-    ZO_PreHook(CHAT_SYSTEM.primaryContainer, "FadeOut", FCOChatTabBrain_Chat_FadeOut_Hook)
+    ZO_PreHook(chatSystem.primaryContainer, "FadeOut", FCOChatTabBrain_Chat_FadeOut_Hook)
 
     local function showMinimizedChatCtrlsAgain(ctrlTable)
         for i, ctrl in pairs(ctrlTable) do
@@ -469,15 +491,15 @@ function FCOCTB.hookChat_functions()
         if settings.fadeOutChatButtons then
             if numNotifications > 0 then
                 zo_callLater(function()
-                    CHAT_SYSTEM.notificationsButton:SetInheritAlpha(true)
-                    CHAT_SYSTEM.notificationsLabel:SetInheritAlpha(true)
+                    chatSystem.notificationsButton:SetInheritAlpha(true)
+                    chatSystem.notificationsLabel:SetInheritAlpha(true)
                 end, settings.fadeOutChatButtonsTime)
                 --If the setting is enabled to hide the minimzed chat bar + icons if no new messages, friends, etc. change
-                if settings.hideIconsInMinimizedChatWindow and CHAT_SYSTEM:IsMinimized() then
+                if settings.hideIconsInMinimizedChatWindow and chatSystem:IsMinimized() then
                     --Show the hidden chat buttons, if chat is minimized, again
                     local ctrlTable = {}
-                    table.insert(ctrlTable, CHAT_SYSTEM.notificationsButton)
-                    table.insert(ctrlTable, CHAT_SYSTEM.notificationsLabel)
+                    table.insert(ctrlTable, chatSystem.notificationsButton)
+                    table.insert(ctrlTable, chatSystem.notificationsLabel)
                     showMinimizedChatCtrlsAgain(ctrlTable)
                 end
             end
@@ -490,15 +512,15 @@ function FCOCTB.hookChat_functions()
         if settings.fadeOutChatButtons then
             if numUnread > 0 then
                 zo_callLater(function()
-                    CHAT_SYSTEM.mailButton:SetInheritAlpha(true)
-                    CHAT_SYSTEM.mailLabel:SetInheritAlpha(true)
+                    chatSystem.mailButton:SetInheritAlpha(true)
+                    chatSystem.mailLabel:SetInheritAlpha(true)
                 end, settings.fadeOutChatButtonsTime)
                 --If the setting is enabled to hide the minimzed chat bar + icons if no new messages, friends, etc. change
-                if settings.hideIconsInMinimizedChatWindow and CHAT_SYSTEM:IsMinimized() then
+                if settings.hideIconsInMinimizedChatWindow and chatSystem:IsMinimized() then
                     --Show the hidden chat buttons, if chat is minimized, again
                     local ctrlTable = {}
-                    table.insert(ctrlTable, CHAT_SYSTEM.mailButton)
-                    table.insert(ctrlTable, CHAT_SYSTEM.mailLabel)
+                    table.insert(ctrlTable, chatSystem.mailButton)
+                    table.insert(ctrlTable, chatSystem.mailLabel)
                     showMinimizedChatCtrlsAgain(ctrlTable)
                 end
             end
@@ -510,13 +532,13 @@ function FCOCTB.hookChat_functions()
         local settings = FCOCTB.settingsVars.settings
         if settings.fadeOutChatButtons then
             zo_callLater(function()
-                CHAT_SYSTEM.agentChatButton:SetInheritAlpha(true)
+                chatSystem.agentChatButton:SetInheritAlpha(true)
             end, settings.fadeOutChatButtonsTime)
             --If the setting is enabled to hide the minimzed chat bar + icons if no new messages, friends, etc. change
-            if settings.hideIconsInMinimizedChatWindow and CHAT_SYSTEM:IsMinimized() then
+            if settings.hideIconsInMinimizedChatWindow and chatSystem:IsMinimized() then
                 --Show the hidden chat buttons, if chat is minimized, again
                 local ctrlTable = {}
-                table.insert(ctrlTable, CHAT_SYSTEM.agentChatButton)
+                table.insert(ctrlTable, chatSystem.agentChatButton)
                 showMinimizedChatCtrlsAgain(ctrlTable)
             end
         end
@@ -527,15 +549,15 @@ function FCOCTB.hookChat_functions()
         local settings = FCOCTB.settingsVars.settings
         if settings.fadeOutChatButtons then
             zo_callLater(function()
-                CHAT_SYSTEM.friendsButton:SetInheritAlpha(true)
-                CHAT_SYSTEM.friendsLabel:SetInheritAlpha(true)
+                chatSystem.friendsButton:SetInheritAlpha(true)
+                chatSystem.friendsLabel:SetInheritAlpha(true)
             end, settings.fadeOutChatButtonsTime)
             --If the setting is enabled to hide the minimzed chat bar + icons if no new messages, friends, etc. change
-            if settings.hideIconsInMinimizedChatWindow and CHAT_SYSTEM:IsMinimized() then
+            if settings.hideIconsInMinimizedChatWindow and chatSystem:IsMinimized() then
                 --Show the hidden chat buttons, if chat is minimized, again
                 local ctrlTable = {}
-                table.insert(ctrlTable, CHAT_SYSTEM.friendsButton)
-                table.insert(ctrlTable, CHAT_SYSTEM.friendsLabel)
+                table.insert(ctrlTable, chatSystem.friendsButton)
+                table.insert(ctrlTable, chatSystem.friendsLabel)
                 showMinimizedChatCtrlsAgain(ctrlTable)
             end
         end
@@ -551,7 +573,7 @@ function FCOCTB.hookChat_functions()
     ZO_PreHookHandler(ZO_Dialog1, "OnHide", FCOChatTabBrain_OnDialog1IsHidden)
 
     --save current settings
-    ZO_PreHook(CHAT_SYSTEM, "ValidateChatChannel", function(self)
+    ZO_PreHook(chatSystem, "ValidateChatChannel", function(self)
         --d("[ValidateChatChannel]")
         local settings = FCOCTB.settingsVars.settings
         if (settings.chatBrainActive == true) then
@@ -586,7 +608,7 @@ function FCOCTB.hookChat_functions()
 
     --OnMouseUp of tabs: Clear chat on current tab by clicking left mouse + SHIFT
     -->Carefull: Using SHIFT key for sprinting (by feet or mounted) will clear teh chat buffer if useing keybind to switch chat tabs :-(
-    ZO_PreHook(CHAT_SYSTEM.primaryContainer.tabGroup, "HandleMouseDown", function(self, tab, button, downInside)
+    ZO_PreHook(chatSystem.primaryContainer.tabGroup, "HandleMouseDown", function(self, tab, button, downInside)
         FCOCTB.SetUserLastAction()
         if button == MOUSE_BUTTON_INDEX_LEFT and IsShiftKeyDown() and FCOCTB.settingsVars.settings.clearChatBufferOnShiftClick then
             if FCOCTB.preventerVars.doNotDoShiftClickCheck == true then
@@ -598,13 +620,13 @@ function FCOCTB.hookChat_functions()
     end)
 
     --load chat brain settings
-    ZO_PreHook(CHAT_SYSTEM.primaryContainer, "HandleTabClick", function(self, tab)
+    ZO_PreHook(chatSystem.primaryContainer, "HandleTabClick", function(self, tab)
         local settings = FCOCTB.settingsVars.settings
         if (settings.chatBrainActive == true) then
             local tabIndex = tab.index
             --d("Clicked on chat tab, index: " .. tostring(tabIndex))
             if settings.brain[tabIndex] then
-                CHAT_SYSTEM:SetChannel(settings.brain[tabIndex].channel, settings.brain[tabIndex].target)
+                chatSystem:SetChannel(settings.brain[tabIndex].channel, settings.brain[tabIndex].target)
             end
             --Clear the chatBuffer if the tab was clicked with the SHIFT key active?
         end
@@ -614,6 +636,7 @@ function FCOCTB.hookChat_functions()
 
     --PreHook the chat "reply to whisper" keybind function
     ZO_PreHook("ChatReplyToLastWhisper", function()
+--d("[FCOCTB]ChatReplyToLastWhisper")
         local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
         if  redirectWhisperChannelId ~= nil and redirectWhisperChannelId ~= 0 then
             --Set whisper reply boolean value to true.
@@ -623,27 +646,30 @@ function FCOCTB.hookChat_functions()
     end)
 
     --PreHook the chat input method to check whispers etc. (inside chat context menu etc.)
-    ZO_PreHook(CHAT_SYSTEM, "StartTextEntry", function(ctrl, text, channel, target, showVirtualKeyboard)
-        --d("[StartTextEntry]")
+    ZO_PreHook(chatSystem, "StartTextEntry", function(ctrl, text, channel, target, showVirtualKeyboard)
         FCOCTB.SetUserLastAction()
-        --No check allowed? Abort here
+        --No check allowed? Abort here as else an endless loop would happen between StartTextEntry->FCOChatTabBrain_SetNextChatChannel->StartTextEntry->...
         if FCOCTB.preventerVars.noChatTextEntryCheck then return end
 
         --Get the current chat channel
         local currentChannel = FCOCTB.GetActiveChatChannelAtTab()
+--d("[StartTextEntry]currentChannel: " ..tostring(currentChannel))
         --If we are not whispering
         if currentChannel ~= nil then
-            --Set the next outgoing chat channel to the last incoming chat message channel
+            --Set the next outgoing chat channel to the last incoming chat message channel.
+            --If the message is a whisper message do some special checks
             FCOChatTabBrain_SetNextChatChannel(currentChannel)
         end
         if currentChannel == CHAT_CHANNEL_WHISPER then
             local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
+            local whisperReply = FCOCTB.whisperVars.whisperReply
+--d(">whispering, redirect to chatTab: " ..tostring(redirectWhisperChannelId) .. ", target: " ..tostring(target) ..", whisperReply: " ..tostring(whisperReply))
             if redirectWhisperChannelId ~= nil and redirectWhisperChannelId ~= 0 then
                 if text == nil or text == "" and channel == "" or channel == nil and target == nil then return end
                 --d("StartTextEntry: text=" .. text .. ", channel=" .. tostring(channel) .. ", target=" .. target)
-                --call slightly delayed as otherwie commandHistory is not updated yet
+                --call slightly delayed as otherwise the commandHistory is not updated yet
                 zo_callLater(function()
-                    FCOChatTabBrain_CheckChatChannelRedirect(text, channel, target, FCOCTB.whisperVars.whisperReply, nil)
+                    FCOChatTabBrain_CheckChatChannelRedirect(text, channel, target, whisperReply, nil)
                 end, 50)
             end
         end
@@ -653,26 +679,26 @@ function FCOCTB.hookChat_functions()
     ZO_PreHook("ZO_ChatTextEntry_Execute", function(control)
         --d("[ZO_ChatTextEntry_Execute]")
         FCOCTB.SetUserLastAction()
-        --Do not check? the abort here
+        --Do not check? then abort here
         if FCOCTB.preventerVars.noChatTextEntryCheck then return end
         --If whisper redirect is enabled
         local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
         if redirectWhisperChannelId ~= nil and redirectWhisperChannelId ~= 0 then
             local currentChannel = FCOCTB.GetActiveChatChannelAtTab()
             --d("Chat text sent, currentChannel: " .. currentChannel)
-            local currentIndex = CHAT_SYSTEM.primaryContainer.currentBuffer:GetParent().tab.index
+            local currentIndex = chatSystem.primaryContainer.currentBuffer:GetParent().tab.index
             if currentChannel == CHAT_CHANNEL_WHISPER and currentIndex ~= redirectWhisperChannelId then
                 --save the currently entered text
-                FCOCTB.whisperVars.currentText = CHAT_SYSTEM.textEntry.editControl:GetText()
+                FCOCTB.whisperVars.currentText = chatSystem.textEntry.editControl:GetText()
                 --d("ZO_ChatTextEntry_Execute: " .. FCOCTB.whisperVars.currentText)
                 --call slightly delayed as otherwie commandHistory is not updated yet
                 zo_callLater(function()
                     --The commandHistory stores the written text/command
-                    --local commandHistoryIndex = CHAT_SYSTEM.textEntry.commandHistory.index
+                    --local commandHistoryIndex = chatSystem.textEntry.commandHistory.index
                     --if commandHistoryIndex < 1 then commandHistoryIndex = 1 end
-                    --d("CommandHistoryText: " .. CHAT_SYSTEM.textEntry.commandHistory.entries[commandHistoryIndex])
-                    --Last recipient is stored in CHAT_SYSTEM.currentTarget
-                    local lastRecipient = CHAT_SYSTEM.currentTarget or nil
+                    --d("CommandHistoryText: " .. chatSystem.textEntry.commandHistory.entries[commandHistoryIndex])
+                    --Last recipient is stored in chatSystem.currentTarget
+                    local lastRecipient = chatSystem.currentTarget
                     FCOChatTabBrain_CheckChatChannelRedirect(nil, CHAT_CHANNEL_WHISPER, lastRecipient, false, nil) --last parameter was before: commandHistoryIndex)
                 end, 50)
             end
@@ -681,7 +707,7 @@ function FCOCTB.hookChat_functions()
     end)
 
     --PreHook the chat system's tabulator key in the text edit (for auto complete) by pre hooking the ZO_AutoComplete OnCommit function
-    ZO_PreHook(CHAT_SYSTEM.textEntry.targetAutoComplete, "OnCommit", function(commitBehavior, commitMethod)
+    ZO_PreHook(chatSystem.textEntry.targetAutoComplete, "OnCommit", function(commitBehavior, commitMethod)
         --d("Auto complete entry OnCommit, commitBehavior: " .. tostring(commitBehavior) .. ", commitMethod: " .. tostring(commitMethod))
         FCOCTB.SetUserLastAction()
         local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
@@ -690,9 +716,9 @@ function FCOCTB.hookChat_functions()
             zo_callLater(function()
                 local currentChannel = FCOCTB.GetActiveChatChannelAtTab()
                 if currentChannel ~= "" and currentChannel == CHAT_CHANNEL_WHISPER then
-                    --d("Auto complete commit. Channel: " .. currentChannel .. ", Target: " .. CHAT_SYSTEM.currentTarget)
-                    --Last recipient is stored in CHAT_SYSTEM.currentTarget
-                    local lastRecipient = CHAT_SYSTEM.currentTarget or nil
+                    --d("Auto complete commit. Channel: " .. currentChannel .. ", Target: " .. chatSystem.currentTarget)
+                    --Last recipient is stored in chatSystem.currentTarget
+                    local lastRecipient = chatSystem.currentTarget
                     FCOChatTabBrain_CheckChatChannelRedirect(nil, CHAT_CHANNEL_WHISPER, lastRecipient, false, nil)
                 end
             end, 50)
@@ -700,14 +726,14 @@ function FCOCTB.hookChat_functions()
     end)
 
     --PreHook the function when you select an entry of the autocomplete
-    ZO_PreHook(CHAT_SYSTEM.textEntry.targetAutoComplete, "FireCallbacks", function(control, eventName, name, autoCompleteType)
+    ZO_PreHook(chatSystem.textEntry.targetAutoComplete, "FireCallbacks", function(control, eventName, name, autoCompleteType)
         --d("Auto complete entry FireCallbacks - eventName: " .. tostring(eventName) .. ", name: " .. tostring(name) .. ", autoCompleteType: " .. tostring(autoCompleteType))
         if FCOCTB.settingsVars.settings.redirectWhisperChannelId ~= 0 and FCOCTB.settingsVars.settings.redirectWhisperChannelId ~= nil then
             if autoCompleteType == AUTO_COMPLETION_SELECTED_BY_CLICK then
                 zo_callLater(function()
                     local currentChannel = FCOCTB.GetActiveChatChannelAtTab()
                     if currentChannel ~= "" and currentChannel == CHAT_CHANNEL_WHISPER then
-                        local lastRecipient = name or CHAT_SYSTEM.currentTarget or nil
+                        local lastRecipient = name or chatSystem.currentTarget
                         FCOChatTabBrain_CheckChatChannelRedirect(nil, CHAT_CHANNEL_WHISPER, lastRecipient, false, nil)
                     end
                 end, 50)
@@ -732,8 +758,8 @@ function FCOCTB.hookChat_functions()
     --Chat maximize button mouse enter callback function
     ZO_PostHookHandler(ZO_ChatWindowMinBarMaximize, "OnMouseEnter", function(control)
         local chatMinimizeButtonClicked = FCOCTB.preventerVars.chatMinimizeButtonClicked
-        if not chatMinimizeButtonClicked and FCOCTB.settingsVars.settings.maximizeChatOnMouseHoverOverMaximizeButton and CHAT_SYSTEM:IsMinimized() then
-            CHAT_SYSTEM:Maximize()
+        if not chatMinimizeButtonClicked and FCOCTB.settingsVars.settings.maximizeChatOnMouseHoverOverMaximizeButton and chatSystem:IsMinimized() then
+            chatSystem:Maximize()
             FCOCTB.SetUserLastAction()
         end
     end)
@@ -754,7 +780,7 @@ function FCOCTB.hookChat_functions()
     end)
 
     --Prehook the chat Minimize method
-    ZO_PreHook(CHAT_SYSTEM, "Minimize", function(...)
+    ZO_PreHook(chatSystem, "Minimize", function(...)
 --d("[FCOCTB]ChatMinimize")
         local prevVars = FCOCTB.preventerVars
         local settings = FCOCTB.settingsVars.settings
@@ -769,7 +795,7 @@ function FCOCTB.hookChat_functions()
         --Only go on with further checks if the chat is not minimized on load of the addon
         if settings.chatMinimizeOnLoad and not FCOCTB.addonVars.gAddonFullyLoaded then return false end
         --Check if the timer is active and disable it then
-        if chatVars.chatMinimizeTimerActive and EVENT_MANAGER:UnregisterForUpdate(FCOCTB.addonVars.gAddonName.."ChatMinimizeCheck") then
+        if chatVars.chatMinimizeTimerActive and EVENT_MANAGER:UnregisterForUpdate(addonName.."ChatMinimizeCheck") then
             chatVars.chatMinimizeTimerActive = false
         end
 
@@ -795,7 +821,7 @@ function FCOCTB.hookChat_functions()
     end)
 
     --Prehook the chat tab OnClicked method
-    ZO_PreHook(CHAT_SYSTEM, "Maximize", function(...)
+    ZO_PreHook(chatSystem, "Maximize", function(...)
 --d("[FCOCTB]ChatMaximize")
         local prevVars = FCOCTB.preventerVars
         local settings = FCOCTB.settingsVars.settings
@@ -809,7 +835,7 @@ function FCOCTB.hookChat_functions()
         local autoMinimizeTimeout = settings.autoMinimizeTimeout
 --d("Timer active: " .. tostring(chatVars.chatMinimizeTimerActive) .. ", autoMinimizeTimeout: " ..tostring(autoMinimizeTimeout))
         if autoMinimizeTimeout ~= nil and autoMinimizeTimeout > 0 and not chatVars.chatMinimizeTimerActive then
-            chatVars.chatMinimizeTimerActive = EVENT_MANAGER:RegisterForUpdate(FCOCTB.addonVars.gAddonName.."ChatMinimizeCheck", 1000, FCOCTB.MinimizeChatCheck)
+            chatVars.chatMinimizeTimerActive = EVENT_MANAGER:RegisterForUpdate(addonName.."ChatMinimizeCheck", 1000, FCOCTB.MinimizeChatCheck)
             chatVars.lastIncomingMessage = GetTimeStamp() -- needed so the auto minimize feature starts to count the time difference from now
         end
         --If the setting is enabled to hide the minimzed chat bar + icons if no new messages, friends, etc. change

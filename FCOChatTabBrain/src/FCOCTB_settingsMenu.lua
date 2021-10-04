@@ -1,6 +1,8 @@
 FCOCTB = FCOCTB or {}
 local FCOCTB = FCOCTB
 
+local chatSystem = FCOCTB.ChatSystem
+
 local function updateGuildNames()
     --Get the guild names
     FCOCTB.guildNames = {}
@@ -19,7 +21,10 @@ function FCOCTB.BuildAddonMenu()
     local LAM = FCOCTB.LAM
     if LAM == nil then return end
 
+    chatSystem = FCOCTB.ChatSystem
+
     local FCOCTBaddonVars = FCOCTB.addonVars
+    local addonName = FCOCTBaddonVars.gAddonName
     local FCOCTBsetVars = FCOCTB.settingsVars
     local FCOCTBdefSettings = FCOCTBsetVars.defaults
     local FCOCTBsettings = FCOCTBsetVars.settings
@@ -73,7 +78,7 @@ function FCOCTB.BuildAddonMenu()
         [FCOCTB_CHAT_SOUND_CHANNEL]         = FCOCTBlocVarsCTB["options_chat_prefer_play_sound_on_chat_channel"],
         [FCOCTB_CHAT_SOUND_CHARACTER]       = FCOCTBlocVarsCTB["options_chat_prefer_play_sound_on_character_name"],
     }
-    local FCOCTBSettingsPanel = LAM:RegisterAddonPanel(FCOCTBaddonVars.gAddonName .. "_LAM", panelData)
+    local FCOCTBSettingsPanel = LAM:RegisterAddonPanel(addonName .. "_LAM", panelData)
     --The comboxboes with the chat tab control names
     local chatTabLAMControls = {
         ["FCOChatTabBrainTabAfterIdle"] = FCOCTBsettings.switchToDefaultChatTabAfterIdleTabId,
@@ -100,7 +105,7 @@ function FCOCTB.BuildAddonMenu()
     }
 
     local function checkChatTabForChatCategory(switchToTabIndex, chatChannels)
-        local chatContainerId = CHAT_SYSTEM.primaryContainer.id
+        local chatContainerId = chatSystem.primaryContainer.id
         for _, chatChannel in pairs(chatChannels) do
             local chatChannelOptionIsEnabled = FCOCTB.CheckChatTabOptionsForCategory(chatChannel, switchToTabIndex, chatContainerId)
             if chatChannelOptionIsEnabled == true then return true end
@@ -305,13 +310,13 @@ function FCOCTB.BuildAddonMenu()
 
                                 if idleSeconds == 0 then
                                     --Disable the timer for the chat auto minimization
-                                    if chatVars.chatMinimizeTimerActive and EVENT_MANAGER:UnregisterForUpdate(FCOCTBaddonVars.gAddonName.."ChatMinimizeCheck") then
+                                    if chatVars.chatMinimizeTimerActive and EVENT_MANAGER:UnregisterForUpdate(addonName.."ChatMinimizeCheck") then
                                         chatVars.chatMinimizeTimerActive = false
                                     end
                                 else
                                     --Enable the timer for the chat auto minimization
                                     if not chatVars.chatMinimizeTimerActive then
-                                        chatVars.chatMinimizeTimerActive = EVENT_MANAGER:RegisterForUpdate(FCOCTBaddonVars.gAddonName.."ChatMinimizeCheck", 1000, FCOCTB.MinimizeChatCheck)
+                                        chatVars.chatMinimizeTimerActive = EVENT_MANAGER:RegisterForUpdate(addonName.."ChatMinimizeCheck", 1000, FCOCTB.MinimizeChatCheck)
                                         chatVars.lastIncomingMessage = GetTimeStamp() -- needed so the auto minimize feature starts to count the time difference from now
                                     end
                                 end
@@ -2902,6 +2907,6 @@ function FCOCTB.BuildAddonMenu()
         }, -- submenu chat sounds
 
     } -- closing LAM optionsTable
-    LAM:RegisterOptionControls(FCOCTBaddonVars.gAddonName .. "_LAM", optionsTable)
+    LAM:RegisterOptionControls(addonName .. "_LAM", optionsTable)
 end
 

@@ -41,6 +41,8 @@
 FCOCTB = FCOCTB or {}
 local FCOCTB = FCOCTB
 
+local chatSystem = FCOCTB.ChatSystem
+
 --===================== HELP & CHAT COMMANDS ==============================================
 
 local function help()
