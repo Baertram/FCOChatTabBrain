@@ -182,6 +182,8 @@ function FCOCTB.BuildAddonMenu()
             FCOChatTabBrain_Settings_PlaySoundTabZoneEN.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zoneen_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageZoneEN])
             FCOChatTabBrain_Settings_PlaySoundTabZoneFR.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zonefr_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageZoneFR])
             FCOChatTabBrain_Settings_PlaySoundTabZoneJP.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zonejp_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageZoneJP])
+            FCOChatTabBrain_Settings_PlaySoundTabZoneRU.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zoneru_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageZoneRU])
+            FCOChatTabBrain_Settings_PlaySoundTabZoneES.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zonees_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageZoneES])
             FCOChatTabBrain_Settings_PlaySoundTabGroup.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_group_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageGroup])
             FCOChatTabBrain_Settings_PlaySoundGroupleader.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_groupleader"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnGroupLeader])
             FCOChatTabBrain_Settings_PlaySoundGuildMaster.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_guildmaster"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnGuildMaster])
@@ -2754,6 +2756,64 @@ function FCOCTB.BuildAddonMenu()
                             setFunc = function(value) FCOCTBsettings.playSoundWithActiveTabZoneJP = value end,
                             disabled = function() return FCOCTBsettings.disableChatSounds or FCOCTBsettings.playSoundOnMessageZoneJP == 1 end,
                             reference = "FCOChatTabBrain_Settings_PlaySoundWithActiveTabZoneJP",
+                        },
+                        {
+                            type = 'slider',
+                            name = FCOCTBlocVarsCTB["options_chat_play_sound_zoneru_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_zoneru_tab_tooltip"],
+                            min = 1,
+                            max = #FCOCTB.sounds,
+                            getFunc = function()
+                                return FCOCTBsettings.playSoundOnMessageZoneRU
+                            end,
+                            setFunc = function(idx)
+                                FCOCTBsettings.playSoundOnMessageZoneRU = idx
+                                FCOChatTabBrain_Settings_PlaySoundTabZoneRU.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zoneru_tab"] .. ": " .. FCOCTB.sounds[idx])
+                                if idx ~= 1 and SOUNDS ~= nil and SOUNDS[FCOCTB.sounds[idx]] ~= nil then
+                                    PlaySound(SOUNDS[FCOCTB.sounds[idx]])
+                                end
+                            end,
+                            default = FCOCTBdefSettings.playSoundOnMessageZoneRU,
+                            reference = "FCOChatTabBrain_Settings_PlaySoundTabZoneRU",
+                            disabled = function() return FCOCTBsettings.disableChatSounds end
+                        },
+                        {
+                            type = "checkbox",
+                            name = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active_tooltip"],
+                            getFunc = function() return FCOCTBsettings.playSoundWithActiveTabZoneRU end,
+                            setFunc = function(value) FCOCTBsettings.playSoundWithActiveTabZoneRU = value end,
+                            disabled = function() return FCOCTBsettings.disableChatSounds or FCOCTBsettings.playSoundOnMessageZoneRU == 1 end,
+                            reference = "FCOChatTabBrain_Settings_PlaySoundWithActiveTabZoneRU",
+                        },
+                        {
+                            type = 'slider',
+                            name = FCOCTBlocVarsCTB["options_chat_play_sound_zonees_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_zonees_tab_tooltip"],
+                            min = 1,
+                            max = #FCOCTB.sounds,
+                            getFunc = function()
+                                return FCOCTBsettings.playSoundOnMessageZoneES
+                            end,
+                            setFunc = function(idx)
+                                FCOCTBsettings.playSoundOnMessageZoneES = idx
+                                FCOChatTabBrain_Settings_PlaySoundTabZoneES.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zonees_tab"] .. ": " .. FCOCTB.sounds[idx])
+                                if idx ~= 1 and SOUNDS ~= nil and SOUNDS[FCOCTB.sounds[idx]] ~= nil then
+                                    PlaySound(SOUNDS[FCOCTB.sounds[idx]])
+                                end
+                            end,
+                            default = FCOCTBdefSettings.playSoundOnMessageZoneES,
+                            reference = "FCOChatTabBrain_Settings_PlaySoundTabZoneES",
+                            disabled = function() return FCOCTBsettings.disableChatSounds end
+                        },
+                        {
+                            type = "checkbox",
+                            name = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active_tooltip"],
+                            getFunc = function() return FCOCTBsettings.playSoundWithActiveTabZoneES end,
+                            setFunc = function(value) FCOCTBsettings.playSoundWithActiveTabZoneES = value end,
+                            disabled = function() return FCOCTBsettings.disableChatSounds or FCOCTBsettings.playSoundOnMessageZoneES == 1 end,
+                            reference = "FCOChatTabBrain_Settings_PlaySoundWithActiveTabZoneES",
                         },
                     }, -- controls sounds zone
 
