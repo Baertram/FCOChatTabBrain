@@ -99,6 +99,8 @@ function FCOCTB.BuildAddonMenu()
         ["FCOChatTabBrainTabZoneDE"] = FCOCTBsettings.autoOpenZoneDEChannelId,
         ["FCOChatTabBrainTabZoneEN"] = FCOCTBsettings.autoOpenZoneENChannelId,
         ["FCOChatTabBrainTabZoneFR"] = FCOCTBsettings.autoOpenZoneFRChannelId,
+        ["FCOChatTabBrainTabZoneRU"] = FCOCTBsettings.autoOpenZoneRUChannelId,
+        ["FCOChatTabBrainTabZoneES"] = FCOCTBsettings.autoOpenZoneESChannelId,
         ["FCOChatTabBrainTabGroup"] = FCOCTBsettings.autoOpenGroupChannelId,
         ["FCOChatTabBrainTabSystem"] = FCOCTBsettings.autoOpenSystemChannelId,
         ["FCOChatTabBrainTabNSC"] = FCOCTBsettings.autoOpenNSCChannelId,
@@ -1743,6 +1745,132 @@ function FCOCTB.BuildAddonMenu()
                         },
                     }, -- controls Zone JP
                 }, -- submenu Zone JP
+
+                ----- Zone RU---------------------------------------------------------------------------------------------------
+                {
+                    type = "submenu",
+                    name = GetString(SI_CHATCHANNELCATEGORIES24),
+                    controls = {
+                        {
+                            type = 'dropdown',
+                            name = FCOCTBlocVarsCTB["options_chat_auto_open_zoneru_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_zoneru_tab_tooltip"],
+                            choices = chatVars.chatTabNames,
+                            getFunc = function()
+                                if chatVars.chatTabNames[FCOCTBsettings.autoOpenZoneRUChannelId] ~= nil then
+                                    if FCOCTBsettings.autoOpenZoneRUChannelId == 0 then
+                                        return FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"]
+                                    end
+                                    return chatVars.chatTabNames[FCOCTBsettings.autoOpenZoneRUChannelId]
+                                else
+                                    return ""
+                                end
+                            end,
+                            setFunc = function(value)
+                                for i,v in pairs(chatVars.chatTabNames) do
+                                    if v == value then
+                                        if value == FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"] then
+                                            FCOCTBsettings.autoOpenZoneRUChannelId = 0
+                                            break
+                                        end
+                                        FCOCTBsettings.autoOpenZoneRUChannelId = i
+                                        checkChatTabForChatCategory(i, {CHAT_CHANNEL_ZONE_LANGUAGE_5})
+                                        break
+                                    end
+                                end
+                            end,
+                            width="half",
+                            reference = "FCOChatTabBrainTabZoneRU",
+                        },
+                        {
+                            type = "slider",
+                            name = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_zoneru_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_tooltip"],
+                            min = 1,
+                            max = 1800,
+                            getFunc = function() return FCOCTBsettings.autoOpenZoneRUIdleTime end,
+                            setFunc = function(idleSeconds)
+                                FCOCTBsettings.autoOpenZoneRUIdleTime = idleSeconds
+                            end,
+                            width="half",
+                            default = FCOCTBdefSettings.autoOpenZoneRUIdleTime,
+                            disabled = function() return FCOCTBsettings.autoOpenZoneRUChannelId == 0  end,
+                        },
+                        {
+                            type = "checkbox",
+                            name = FCOCTBlocVarsCTB["options_chat_auto_change_channel_zoneru_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_change_channel_zoneru_tab_tooltip"],
+                            getFunc = function() return FCOCTBsettings.autoChangeToChannelZoneRU end,
+                            setFunc = function(value) FCOCTBsettings.autoChangeToChannelZoneRU = value
+                            end,
+                            default = FCOCTBdefSettings.autoChangeToChannelZoneRU,
+                            disabled = function() return FCOCTBsettings.autoOpenZoneRUChannelId == 0  end,
+                        },
+                    }, -- controls Zone RU
+                }, -- submenu Zone RU
+
+                ----- Zone ES---------------------------------------------------------------------------------------------------
+                {
+                    type = "submenu",
+                    name = GetString(SI_CHATCHANNELCATEGORIES25),
+                    controls = {
+                        {
+                            type = 'dropdown',
+                            name = FCOCTBlocVarsCTB["options_chat_auto_open_zonees_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_zonees_tab_tooltip"],
+                            choices = chatVars.chatTabNames,
+                            getFunc = function()
+                                if chatVars.chatTabNames[FCOCTBsettings.autoOpenZoneESChannelId] ~= nil then
+                                    if FCOCTBsettings.autoOpenZoneESChannelId == 0 then
+                                        return FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"]
+                                    end
+                                    return chatVars.chatTabNames[FCOCTBsettings.autoOpenZoneESChannelId]
+                                else
+                                    return ""
+                                end
+                            end,
+                            setFunc = function(value)
+                                for i,v in pairs(chatVars.chatTabNames) do
+                                    if v == value then
+                                        if value == FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"] then
+                                            FCOCTBsettings.autoOpenZoneESChannelId = 0
+                                            break
+                                        end
+                                        FCOCTBsettings.autoOpenZoneESChannelId = i
+                                        checkChatTabForChatCategory(i, {CHAT_CHANNEL_ZONE_LANGUAGE_6})
+                                        break
+                                    end
+                                end
+                            end,
+                            width="half",
+                            reference = "FCOChatTabBrainTabZoneES",
+                        },
+                        {
+                            type = "slider",
+                            name = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_zonees_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_tooltip"],
+                            min = 1,
+                            max = 1800,
+                            getFunc = function() return FCOCTBsettings.autoOpenZoneESIdleTime end,
+                            setFunc = function(idleSeconds)
+                                FCOCTBsettings.autoOpenZoneESIdleTime = idleSeconds
+                            end,
+                            width="half",
+                            default = FCOCTBdefSettings.autoOpenZoneESIdleTime,
+                            disabled = function() return FCOCTBsettings.autoOpenZoneESChannelId == 0  end,
+                        },
+                        {
+                            type = "checkbox",
+                            name = FCOCTBlocVarsCTB["options_chat_auto_change_channel_zonees_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_change_channel_zonees_tab_tooltip"],
+                            getFunc = function() return FCOCTBsettings.autoChangeToChannelZoneES end,
+                            setFunc = function(value) FCOCTBsettings.autoChangeToChannelZoneES = value
+                            end,
+                            default = FCOCTBdefSettings.autoChangeToChannelZoneES,
+                            disabled = function() return FCOCTBsettings.autoOpenZoneESChannelId == 0  end,
+                        },
+                    }, -- controls Zone ES
+                }, -- submenu Zone ES
 
                 ----- Group---------------------------------------------------------------------------------------------------
                 {

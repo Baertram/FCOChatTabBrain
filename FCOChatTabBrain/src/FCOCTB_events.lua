@@ -35,6 +35,8 @@ local function FCOChatTabBrain_CheckLastChatChannel(messageType, overwrite)
         [CHAT_CHANNEL_ZONE_LANGUAGE_2]  = settings.autoOpenZoneFRChannelId,
         [CHAT_CHANNEL_ZONE_LANGUAGE_3]  = settings.autoOpenZoneDEChannelId,
         [CHAT_CHANNEL_ZONE_LANGUAGE_4]  = settings.autoOpenZoneJPChannelId,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = settings.autoOpenZoneRUChannelId,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = settings.autoOpenZoneESChannelId,
         [CHAT_CHANNEL_MONSTER_SAY]      = settings.autoOpenNSCChannelId,
         [CHAT_CHANNEL_MONSTER_YELL]     = settings.autoOpenNSCChannelId,
         [CHAT_CHANNEL_MONSTER_WHISPER]  = settings.autoOpenNSCChannelId,
@@ -60,6 +62,8 @@ local function FCOChatTabBrain_CheckLastChatChannel(messageType, overwrite)
         [CHAT_CHANNEL_ZONE_LANGUAGE_2]  = settings.autoChangeToChannelZoneFR,
         [CHAT_CHANNEL_ZONE_LANGUAGE_3]  = settings.autoChangeToChannelZoneDE,
         [CHAT_CHANNEL_ZONE_LANGUAGE_4]  = settings.autoChangeToChannelZoneJP,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = settings.autoChangeToChannelZoneRU,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = settings.autoChangeToChannelZoneES,
         [CHAT_CHANNEL_MONSTER_SAY]      = settings.autoChangeToChannelNSC,
         [CHAT_CHANNEL_MONSTER_YELL]     = settings.autoChangeToChannelNSC,
         [CHAT_CHANNEL_MONSTER_WHISPER]  = settings.autoChangeToChannelNSC,
@@ -239,6 +243,16 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
             ["sound"]           = settings.playSoundOnMessageZoneJP,
             ["withActiveTab"]   = settings.playSoundWithActiveTabZoneJP,
             ["switchToTab"]     = settings.autoOpenZoneJPChannelId,
+        },
+        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = {
+            ["sound"]           = settings.playSoundOnMessageZoneRU,
+            ["withActiveTab"]   = settings.playSoundWithActiveTabZoneRU,
+            ["switchToTab"]     = settings.autoOpenZoneRUChannelId,
+        },
+        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = {
+            ["sound"]           = settings.playSoundOnMessageZoneES,
+            ["withActiveTab"]   = settings.playSoundWithActiveTabZoneES,
+            ["switchToTab"]     = settings.autoOpenZoneESChannelId,
         },
         [CHAT_CHANNEL_MONSTER_SAY]      = {
             ["sound"]           = settings.playSoundOnMessageNSC,
@@ -646,6 +660,14 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
             ["switchToTab"]	= settings.autoOpenZoneJPChannelId,
             ["idleTime"]    = settings.autoOpenZoneJPIdleTime,
         },
+        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = {
+            ["switchToTab"]	= settings.autoOpenZoneRUChannelId,
+            ["idleTime"]    = settings.autoOpenZoneRUIdleTime,
+        },
+        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = {
+            ["switchToTab"]	= settings.autoOpenZoneESChannelId,
+            ["idleTime"]    = settings.autoOpenZoneESIdleTime,
+        },
         [CHAT_CHANNEL_MONSTER_SAY]      = {
             ["switchToTab"]	= settings.autoOpenNSCChannelId,
             ["idleTime"]    = settings.autoOpenNSCIdleTime,
@@ -941,9 +963,6 @@ function FCOCTB.PlayerActivated(event)
 
     --Mark the addon as fully loaded now
     addonVars.gAddonFullyLoaded = true
-
-    -- Registers addon to loadedAddon library
-    FCOCTB.LIBLA:RegisterAddon(addonVars.gAddonName, addonVars.addonVersionOptionsNumber)
 end
 
 function FCOCTB.Loaded(eventCode, addOnName)
@@ -956,9 +975,6 @@ function FCOCTB.Loaded(eventCode, addOnName)
     chatSystem = FCOCTB.ChatSystem
     FCOCTB.GetChatSystem()
 
-    --LibLoadedAddons
-    FCOCTB.LIBLA = LibLoadedAddons
-    if FCOCTB.LIBLA == nil then d("[FCOCTB]Library LibLoadedAddons is missing. Addon won't work!") return end
     --LibAddonMenu-2.0
     FCOCTB.LAM = LibAddonMenu2
     if FCOCTB.LAM == nil then d("[FCOCTB]Library LibAddonMenu-2.0 is missing. Addon won't work!") return end

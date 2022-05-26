@@ -357,6 +357,8 @@ local function FCOChatTabBrain_SetNextChatChannel(currentChannel)
         [CHAT_CHANNEL_ZONE_LANGUAGE_2]  = settings.autoOpenZoneFRChannelId,
         [CHAT_CHANNEL_ZONE_LANGUAGE_3]  = settings.autoOpenZoneDEChannelId,
         [CHAT_CHANNEL_ZONE_LANGUAGE_4]  = settings.autoOpenZoneJPChannelId,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = settings.autoOpenZoneRUChannelId,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = settings.autoOpenZoneESChannelId,
         [CHAT_CHANNEL_MONSTER_SAY]      = settings.autoOpenNSCChannelId,
         [CHAT_CHANNEL_MONSTER_YELL]     = settings.autoOpenNSCChannelId,
         [CHAT_CHANNEL_MONSTER_WHISPER]  = settings.autoOpenNSCChannelId,
