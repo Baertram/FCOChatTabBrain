@@ -240,20 +240,23 @@ end
 --Redirect the chat input to a specific tab, e.g. whispers to a special chat tab where the whisper chat channel category was enabled to show
 --> In the settings of FCOCTB you choose the chat tab to switch to for "whisper messages"
 local function FCOChatTabBrain_RedirectToChannel(chatChannelId, recipientName, commandHistoryIndex)
+--d("[FCOChatTabBrain_RedirectToChannel]chatChannelId=" ..tostring(chatChannelId) .. ", recipientName: " ..tostring(recipientName) .. ", commandHistoryIndex: " ..tostring(commandHistoryIndex))
     local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
     if redirectWhisperChannelId == nil or redirectWhisperChannelId == 0 then return end
     local maxChatChannels = #chatSystem.primaryContainer.windows or 1
     --Change the channel to the selected whisper redirect channel
     if chatChannelId ~= 0 and chatChannelId <= maxChatChannels then
+--d(">CycleChatTab to chat channel: " ..tostring(chatChannelId))
         FCOCTB.CycleChatTab(chatChannelId)
     end
     local chatTextEntry = chatSystem.textEntry
     --Update the recipient name and the whisper message at the whisper tab edit field?
     local currentWhisperText = FCOCTB.whisperVars.currentText
+
     if recipientName ~= nil and commandHistoryIndex ~= nil and commandHistoryIndex >= 1 then
         local commandHistoryText = chatTextEntry.commandHistory.entries[commandHistoryIndex]
         if commandHistoryText ~= nil and commandHistoryText ~= "" then
-            --d("Recipient name: " .. recipientName .. ", Chat text: " .. commandHistoryText)
+--d(">CommandHistory provided - Recipient name: " .. recipientName .. ", Chat text: " .. commandHistoryText)
             --IMportant to avoid deadloop!
             FCOCTB.preventerVars.noChatTextEntryCheck = true
             --chatSystem.textEntry.system:StartTextEntry("/w " .. recipientName .. " ")
@@ -262,13 +265,15 @@ local function FCOChatTabBrain_RedirectToChannel(chatChannelId, recipientName, c
             --chatSystem.textEntry.targetAutoComplete:OnCommit(COMMIT_BEHAVIOR_KEEP_FOCUS, AUTO_COMPLETION_SELECTED_BY_TAB)
             --Fill in the text that you typed before at another tab, the whisper message
             if currentWhisperText ~= "" then
+--d(">StartChatInput - currentWhisperText: " ..tostring(currentWhisperText))
                 --chatTextEntry.system:StartTextEntry(FCOCTB.whisperVars.currentText)
                 StartChatInput(currentWhisperText)
             else
+--d(">StartChatInput - commandHistoryText: " ..tostring(commandHistoryText))
                 --chatTextEntry.system:StartTextEntry(commandHistoryText)
                 StartChatInput(commandHistoryText)
             end
---d(">FCOChatTabBrain_RedirectToChannel. Whisper to, chat entry.")
+--d(">Whisper to, chat entry.")
             FCOCTB.preventerVars.noChatTextEntryCheck = false
         end
 
@@ -276,7 +281,7 @@ local function FCOChatTabBrain_RedirectToChannel(chatChannelId, recipientName, c
     --Coming here by pressing tab key upon auto complete of the whisper to name
     --or by entering /w /t /f and the recipient name and a text
     elseif recipientName ~= nil and commandHistoryIndex == nil then
-        --d("Recipient name: " .. recipientName)
+--d("commandHistory is NIL - Recipient name: " .. recipientName)
         FCOCTB.preventerVars.noChatTextEntryCheck = true
         --chatSystem.textEntry.system:StartTextEntry("/w " .. recipientName .. " ")
         chatSystem:SetChannel(CHAT_CHANNEL_WHISPER, recipientName)
@@ -285,10 +290,19 @@ local function FCOChatTabBrain_RedirectToChannel(chatChannelId, recipientName, c
         FCOCTB.preventerVars.noChatTextEntryCheck = false
         if currentWhisperText ~= "" then
             zo_callLater(function()
+--d(">StartChatInput - DELAY 50 - currentWhisperText: " ..tostring(currentWhisperText))
                 --chatTextEntry.editControl:SetText(FCOCTB.whisperVars.currentText)
                 --chatTextEntry.editControl:TakeFocus()
                 StartChatInput(currentWhisperText)
---d(">FCOChatTabBrain_RedirectToChannel. Whisper to, chat entry: Took focus")
+--d(">Whisper to, chat entry: Took focus")
+                local currentChatEditText = chatTextEntry:GetText()
+                if currentChatEditText ~= nil and currentChatEditText ~= "" then
+                    zo_callLater(function()
+                        FCOCTB.preventerVars.noChatTextEntryCheck = true
+                        chatTextEntry.editControl:SetText("")
+                        FCOCTB.preventerVars.noChatTextEntryCheck = false
+                    end)
+                end
             end, 50)
         end
     end
@@ -296,6 +310,8 @@ end
 
 --Check if starting of chat message should be redirected to be used in another channel
 local function FCOChatTabBrain_CheckChatChannelRedirect(text, channel, recipientName, doReplyWhisper, commandHistoryIndex)
+    local currentIndex = chatSystem.primaryContainer.currentBuffer:GetParent().tab.index
+--d("[FCOChatTabBrain_CheckChatChannelRedirect] channel="..channel .. ", currentIndex: " .. currentIndex .. ", RecipientName: " .. recipientName .. ", text=" .. tostring(text))
     --A chat tab change is already active? Abort here
     if FCOCTB.preventerVars.changingToNewChatTab then return end
     local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
@@ -308,11 +324,11 @@ local function FCOChatTabBrain_CheckChatChannelRedirect(text, channel, recipient
         --Add chat channel whisper, so only the chat tab will be switched
         channel = CHAT_CHANNEL_WHISPER
     end
-    local currentIndex = chatSystem.primaryContainer.currentBuffer:GetParent().tab.index
-    --d("[FCOChatTabBrain_CheckChatChannelRedirect] CHAT_CHANNEL_WHISPER=" .. CHAT_CHANNEL_WHISPER .. ", channel="..channel .. ", currentIndex: " .. currentIndex .. ", RecipientName: " .. recipientName .. ", currentWhisperText: " ..tostring(FCOCTB.whisperVars.currentText))
+--d(">channel: " ..tostring(channel) .. ", CHAT_CHANNEL_WHISPER=" .. tostring(CHAT_CHANNEL_WHISPER) .. ", currentWhisperText: " ..tostring(FCOCTB.whisperVars.currentText))
     if currentIndex ~= redirectWhisperChannelId and channel == CHAT_CHANNEL_WHISPER then
         if FCOCTB.whisperVars.currentText == " " then FCOCTB.whisperVars.currentText = "" end
         --Change chat tab and fill in whispered target name + execute it so it is selected + send the text message then
+--d(">>FCOChatTabBrain_RedirectToChannel - recipientName: " ..tostring(recipientName) .. ", commandHistoryIndex: " ..tostring(commandHistoryIndex))
         FCOChatTabBrain_RedirectToChannel(redirectWhisperChannelId, recipientName, commandHistoryIndex)
     end
     --Reset the whisper reply boolean variable
@@ -332,7 +348,10 @@ local function FCOChatTabBrain_SetNextChatChannel(currentChannel)
 --d("[FCOChatTabBrain_SetNextChatChannel] lastIncomingChannel: " .. lastIncomingChatChannel .. " (".. lastIncomingChatChannelType .."), currentChannel:" .. currentChannel)
     if lastIncomingChatChannel == nil or lastIncomingChatChannel == ""
             or lastIncomingChatChannelType == nil or lastIncomingChatChannelType == ""
-            or (currentChannel == lastIncomingChatChannelType and currentChannel ~= CHAT_CHANNEL_WHISPER) then return end
+            or (currentChannel == lastIncomingChatChannelType and currentChannel ~= CHAT_CHANNEL_WHISPER) then
+--d("<<ABORT!")
+        return
+    end
     --Get the current active chat tab
     local currentIndex = chatSystem.primaryContainer.currentBuffer:GetParent().tab.index
     --Only go on if the active chat tab equals the chat tab where we got the last message
@@ -364,14 +383,17 @@ local function FCOChatTabBrain_SetNextChatChannel(currentChannel)
         [CHAT_CHANNEL_MONSTER_WHISPER]  = settings.autoOpenNSCChannelId,
     }
     --Are we at the same chat tab, where the message came in?
-    if currentIndex ~= chatTabs[lastIncomingChatChannelType] then return end
+    if currentIndex ~= chatTabs[lastIncomingChatChannelType] then
+--d("<<ABORT! currentIndex: " ..tostring(currentIndex) .. ", chatTabs[lastIncomingChatChannelType]: " ..tostring(chatTabs[lastIncomingChatChannelType]))
+        return
+    end
     --Important to avoid dead loop
     FCOCTB.preventerVars.noChatTextEntryCheck = true
     --Write the channel of the last received chat message to the chat so you can directly answer
     --chatSystem.textEntry.system:StartTextEntry(chatVars.lastIncomingChatChannel .. " ")
     --If last incoming message was a whsiper message, we need to answer
     if lastIncomingChatChannelType == CHAT_CHANNEL_WHISPER then
-        --20201-10-03 FCOCTB v0.4.5
+        --2021-10-03 FCOCTB v0.4.5
         --Answer last whisper, but if we were currently typing new text as the last whisper was incoming:
         --Keep the receiver of the whisper we were typing to! And do not answer the last incoming whisper message.
         local lastWhisperReceiver = FCOCTB.whisperVars.lastReceiver
@@ -379,12 +401,14 @@ local function FCOChatTabBrain_SetNextChatChannel(currentChannel)
 --d(">currentReceiver: " ..tostring(currentReceiver) .. ", lastWhisperReceiver: " ..tostring(lastWhisperReceiver))
         if (lastWhisperReceiver ~= nil and lastWhisperReceiver ~= "") and (currentReceiver ~= nil and currentReceiver ~= "")
             and currentReceiver ~= lastWhisperReceiver then
+--d(">chatSystem:SetChannel(CHAT_CHANNEL_WHISPER, receiver = " ..tostring(lastWhisperReceiver) .. ")")
             chatSystem:SetChannel(CHAT_CHANNEL_WHISPER, lastWhisperReceiver)
             FCOCTB.whisperVars.lastReceiver = ""
         else
             --We were not typing to someone else as the last incoming whisper appeared and thus we just need to answer the last incoming
             --whisper message now
             FCOCTB.whisperVars.lastReceiver = ""
+--d(">call ChatReplyToLastWhisper()")
             ChatReplyToLastWhisper() --ESO standard function
         end
     else
@@ -576,7 +600,7 @@ function FCOCTB.hookChat_functions()
 
     --save current settings
     ZO_PreHook(chatSystem, "ValidateChatChannel", function(self)
-        --d("[ValidateChatChannel]")
+--d("[ValidateChatChannel]")
         local settings = FCOCTB.settingsVars.settings
         if (settings.chatBrainActive == true) then
             local tabIndex = self.primaryContainer.currentBuffer:GetParent().tab.index
@@ -638,12 +662,18 @@ function FCOCTB.hookChat_functions()
 
     --PreHook the chat "reply to whisper" keybind function
     ZO_PreHook("ChatReplyToLastWhisper", function()
+        local chatSystem = ZO_GetChatSystem()
+        if chatSystem.targets[CHAT_CHANNEL_WHISPER] then
+            local target = chatSystem.targets[CHAT_CHANNEL_WHISPER]:GetLastTarget()
+            if target and target ~= "" then
 --d("[FCOCTB]ChatReplyToLastWhisper")
-        local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
-        if  redirectWhisperChannelId ~= nil and redirectWhisperChannelId ~= 0 then
-            --Set whisper reply boolean value to true.
-            -- Will be reset to false again at end of function: FCOChatTabBrain_CheckChatChannelRedirect()
-            FCOCTB.whisperVars.whisperReply = true
+                local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
+                if redirectWhisperChannelId ~= nil and redirectWhisperChannelId ~= 0 then
+                    --Set whisper reply boolean value to true.
+                    -- Will be reset to false again at end of function: FCOChatTabBrain_CheckChatChannelRedirect()
+                    FCOCTB.whisperVars.whisperReply = true
+                end
+            end
         end
     end)
 
@@ -668,9 +698,10 @@ function FCOCTB.hookChat_functions()
 --d(">whispering, redirect to chatTab: " ..tostring(redirectWhisperChannelId) .. ", target: " ..tostring(target) ..", whisperReply: " ..tostring(whisperReply))
             if redirectWhisperChannelId ~= nil and redirectWhisperChannelId ~= 0 then
                 if text == nil or text == "" and channel == "" or channel == nil and target == nil then return end
-                --d("StartTextEntry: text=" .. text .. ", channel=" .. tostring(channel) .. ", target=" .. target)
+--d(">>StartTextEntry: text=" .. tostring(text) .. ", channel=" .. tostring(channel) .. ", target=" .. tostring(target))
                 --call slightly delayed as otherwise the commandHistory is not updated yet
                 zo_callLater(function()
+--d(">>>FCOChatTabBrain_CheckChatChannelRedirect - Delayed 50")
                     FCOChatTabBrain_CheckChatChannelRedirect(text, channel, target, whisperReply, nil)
                 end, 50)
             end
@@ -679,28 +710,30 @@ function FCOCTB.hookChat_functions()
 
     --PreHook the chat system's return key/chat text was sent
     ZO_PreHook("ZO_ChatTextEntry_Execute", function(control)
-        --d("[ZO_ChatTextEntry_Execute]")
+--d("[ZO_ChatTextEntry_Execute]")
         FCOCTB.SetUserLastAction()
         --Do not check? then abort here
         if FCOCTB.preventerVars.noChatTextEntryCheck then return end
         --If whisper redirect is enabled
         local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
         if redirectWhisperChannelId ~= nil and redirectWhisperChannelId ~= 0 then
+            local currentText = chatSystem.textEntry.editControl:GetText()
             local currentChannel = FCOCTB.GetActiveChatChannelAtTab()
-            --d("Chat text sent, currentChannel: " .. currentChannel)
+--d("Chat text sent, currentChannel: " .. currentChannel .. ", currentText: " ..tostring(currentText))
             local currentIndex = chatSystem.primaryContainer.currentBuffer:GetParent().tab.index
             if currentChannel == CHAT_CHANNEL_WHISPER and currentIndex ~= redirectWhisperChannelId then
                 --save the currently entered text
-                FCOCTB.whisperVars.currentText = chatSystem.textEntry.editControl:GetText()
-                --d("ZO_ChatTextEntry_Execute: " .. FCOCTB.whisperVars.currentText)
+                FCOCTB.whisperVars.currentText = currentText --chatSystem.textEntry.editControl:GetText()
+--d(">whisperVars.currentText: " .. FCOCTB.whisperVars.currentText)
                 --call slightly delayed as otherwie commandHistory is not updated yet
                 zo_callLater(function()
                     --The commandHistory stores the written text/command
                     --local commandHistoryIndex = chatSystem.textEntry.commandHistory.index
                     --if commandHistoryIndex < 1 then commandHistoryIndex = 1 end
-                    --d("CommandHistoryText: " .. chatSystem.textEntry.commandHistory.entries[commandHistoryIndex])
+                    ----d("CommandHistoryText: " .. chatSystem.textEntry.commandHistory.entries[commandHistoryIndex])
                     --Last recipient is stored in chatSystem.currentTarget
                     local lastRecipient = chatSystem.currentTarget
+--d(">>FCOChatTabBrain_CheckChatChannelRedirect - DELAY 50")
                     FCOChatTabBrain_CheckChatChannelRedirect(nil, CHAT_CHANNEL_WHISPER, lastRecipient, false, nil) --last parameter was before: commandHistoryIndex)
                 end, 50)
             end
@@ -710,7 +743,7 @@ function FCOCTB.hookChat_functions()
 
     --PreHook the chat system's tabulator key in the text edit (for auto complete) by pre hooking the ZO_AutoComplete OnCommit function
     ZO_PreHook(chatSystem.textEntry.targetAutoComplete, "OnCommit", function(commitBehavior, commitMethod)
-        --d("Auto complete entry OnCommit, commitBehavior: " .. tostring(commitBehavior) .. ", commitMethod: " .. tostring(commitMethod))
+--d("Auto complete entry OnCommit, commitBehavior: " .. tostring(commitBehavior) .. ", commitMethod: " .. tostring(commitMethod))
         FCOCTB.SetUserLastAction()
         local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
         if redirectWhisperChannelId ~= nil and redirectWhisperChannelId ~= 0 then
@@ -729,7 +762,7 @@ function FCOCTB.hookChat_functions()
 
     --PreHook the function when you select an entry of the autocomplete
     ZO_PreHook(chatSystem.textEntry.targetAutoComplete, "FireCallbacks", function(control, eventName, name, autoCompleteType)
-        --d("Auto complete entry FireCallbacks - eventName: " .. tostring(eventName) .. ", name: " .. tostring(name) .. ", autoCompleteType: " .. tostring(autoCompleteType))
+--d("Auto complete entry FireCallbacks - eventName: " .. tostring(eventName) .. ", name: " .. tostring(name) .. ", autoCompleteType: " .. tostring(autoCompleteType))
         if FCOCTB.settingsVars.settings.redirectWhisperChannelId ~= 0 and FCOCTB.settingsVars.settings.redirectWhisperChannelId ~= nil then
             if autoCompleteType == AUTO_COMPLETION_SELECTED_BY_CLICK then
                 zo_callLater(function()

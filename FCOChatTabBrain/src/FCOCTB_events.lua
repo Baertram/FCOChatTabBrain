@@ -910,7 +910,7 @@ function FCOCTB.PlayerActivated(event)
     local addonVars = FCOCTB.addonVars
     EVENT_MANAGER:UnregisterForEvent(addonVars.gAddonName, event)
 
-    FCOCTB.ChatSystem = CHAT_SYSTEM
+    FCOCTB.ChatSystem = ZO_GetChatSystem() or CHAT_SYSTEM
     chatSystem = FCOCTB.ChatSystem
     FCOCTB.GetChatSystem()
 

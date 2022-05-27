@@ -2,6 +2,12 @@
 FCOCTB = {}
 local FCOCTB = FCOCTB
 
+--[[ Known bugs
+
+#1 2022-05-26 Starting the first whisper after reloadui/login is keeping the whisper message in chat editbox
+
+]]
+
 --AddOn info
 FCOCTB.addonVars = {}
 FCOCTB.addonVars.gAddonName				= "FCOChatTabBrain"
