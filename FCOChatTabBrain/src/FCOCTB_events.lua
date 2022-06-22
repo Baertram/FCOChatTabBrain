@@ -421,29 +421,32 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
             --Now check if the prefered sound to play is currently the correct one as
             --e.g. the group leader sound should be prefered but we aren't in any group
             --First check with the prefered settings
-            if isGroupLeaderSound and IsUnitGrouped("player") and (settings.preferedSoundForMultiple == FCOCTB_CHAT_SOUND_GROUP_LEADER) then
+            local preferedSoundForMultiple = settings.preferedSoundForMultiple
+            if isGroupLeaderSound and IsUnitGrouped("player") and (preferedSoundForMultiple == FCOCTB_CHAT_SOUND_GROUP_LEADER) then
                 soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_GROUP_LEADER]
-            elseif isMessageFromGuildMaster and (settings.preferedSoundForMultiple == FCOCTB_CHAT_SOUND_GUILD_MASTER) then
+            elseif isMessageFromGuildMaster and (preferedSoundForMultiple == FCOCTB_CHAT_SOUND_GUILD_MASTER) then
                 soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_GUILD_MASTER]
-            elseif isFriend and (settings.preferedSoundForMultiple == FCOCTB_CHAT_SOUND_FRIEND) then
+            elseif isFriend and (preferedSoundForMultiple == FCOCTB_CHAT_SOUND_FRIEND) then
                 soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_FRIEND]
-            elseif textFound and (settings.preferedSoundForMultiple == FCOCTB_CHAT_SOUND_TEXT) then
+            elseif textFound and (preferedSoundForMultiple == FCOCTB_CHAT_SOUND_TEXT) then
                 soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_TEXT]
-            elseif characterName and (settings.preferedSoundForMultiple == FCOCTB_CHAT_SOUND_CHARACTER) then
+            elseif characterName and (preferedSoundForMultiple == FCOCTB_CHAT_SOUND_CHARACTER) then
                 soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_CHARACTER]
             end
             --If no sound was set yet (because the priorized sound is group leader but we are not grouped):
             -- Check without the prefered settings then
-            if soundToPlayNow == nil and isGroupLeaderSound and IsUnitGrouped("player") then
-                soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_GROUP_LEADER]
-            elseif soundToPlayNow == nil and isMessageFromGuildMaster then
-                soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_GUILD_MASTER]
-            elseif soundToPlayNow == nil and isFriend then
-                soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_FRIEND]
-            elseif soundToPlayNow == nil and textFound then
-                soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_TEXT]
-            elseif soundToPlayNow == nil and characterName then
-                soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_CHARACTER]
+            if soundToPlayNow == nil then
+                if isGroupLeaderSound and IsUnitGrouped("player") then
+                    soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_GROUP_LEADER]
+                elseif isMessageFromGuildMaster then
+                    soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_GUILD_MASTER]
+                elseif isFriend then
+                    soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_FRIEND]
+                elseif textFound then
+                    soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_TEXT]
+                elseif characterName then
+                    soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_CHARACTER]
+                end
             end
         end
     end
@@ -558,7 +561,7 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
     --Is the chat message sent by myself? Abort then
     if fromName == myAccountName or postingPerson == myAccountName or fromName == myPlayerNameRaw or postingPerson == myPlayerName then
         --Get the used chat channel so the next time we press RETURN will send another message to this chat channel, instead of the chat channel from last incoming message
---d(">>[Outgoing] chat message by myself!")
+--(">>[Outgoing] chat message by myself!")
         if messageType ~= nil and settings.sendingMessageOverwritesChatChannel == true then
             --Overwrite the last incoming chat channel with your currently used chat channel
             FCOChatTabBrain_CheckLastChatChannel(messageType, true)
@@ -711,6 +714,7 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
                     keyWord = string.gsub(keyWord, '([%[%]%%%(%)%{%}%$%^%+])', '[%%%1]')
 --d(">keyword: " ..tostring(keyWord))
                     if string.match(string.lower(messageText), string.lower(keyWord)) then
+--d(">> found keyword!")
                         textFound = true
                         break
                     end
@@ -733,13 +737,13 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
                 if messageText == "" then
                     messageText = string.gsub(text, '([%[%]%%%(%)%{%}%$%^%+])', '[%%%1]')
                 end
-                --d("Message: " .. messageText)
+--d("Message: " .. messageText)
                 local charnameFragments = { zo_strsplit(" ", myPlayerName) }
                 for _,charnameFragment in ipairs(charnameFragments) do
                     charnameFragment = string.gsub(charnameFragment, '([%[%]%%%(%)%{%}%$%^%+])', '[%%%1]')
                     --d("Check part: " .. charnameFragment)
                     if string.match(string.lower(messageText), string.lower(charnameFragment)) then
-                        --d(">> found!")
+--d(">> found character text!")
                         myCharacterNameWasUsed = true
                         break
                     end
