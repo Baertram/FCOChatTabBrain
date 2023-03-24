@@ -3,10 +3,10 @@
 ## Author: Baertram
 ## Version: 0.4.7
 ## AddOnVersion: 000407
-## APIVersion: 101034 101035
+## APIVersion: 101037 101038
 ## Description: Remembers for each chat tab where, and to whom you were speaking. Enables you to switch chat tabs by keybindings, cycle chat tabs, show/hide the chat with keybindings, minimize/maximize the chat on events, redirect send whispers to one chat tab to keep the output clean, automatically open chat tabs upon incoming messages (after a chosen delay of your chat inactivity -> No input, no clicks, no mouse movement at/above the chat)
 ## SavedVariables: FCOChatTabBrain_Settings
-## DependsOn: LibAddonMenu-2.0>=33
+## DependsOn: LibAddonMenu-2.0>=34
 
 ## Addon source
 FCOCTB_Constants.lua

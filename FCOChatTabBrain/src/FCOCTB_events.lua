@@ -35,8 +35,6 @@ local function FCOChatTabBrain_CheckLastChatChannel(messageType, overwrite)
         [CHAT_CHANNEL_ZONE_LANGUAGE_2]  = settings.autoOpenZoneFRChannelId,
         [CHAT_CHANNEL_ZONE_LANGUAGE_3]  = settings.autoOpenZoneDEChannelId,
         [CHAT_CHANNEL_ZONE_LANGUAGE_4]  = settings.autoOpenZoneJPChannelId,
-        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = settings.autoOpenZoneRUChannelId,
-        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = settings.autoOpenZoneESChannelId,
         [CHAT_CHANNEL_MONSTER_SAY]      = settings.autoOpenNSCChannelId,
         [CHAT_CHANNEL_MONSTER_YELL]     = settings.autoOpenNSCChannelId,
         [CHAT_CHANNEL_MONSTER_WHISPER]  = settings.autoOpenNSCChannelId,
@@ -62,8 +60,6 @@ local function FCOChatTabBrain_CheckLastChatChannel(messageType, overwrite)
         [CHAT_CHANNEL_ZONE_LANGUAGE_2]  = settings.autoChangeToChannelZoneFR,
         [CHAT_CHANNEL_ZONE_LANGUAGE_3]  = settings.autoChangeToChannelZoneDE,
         [CHAT_CHANNEL_ZONE_LANGUAGE_4]  = settings.autoChangeToChannelZoneJP,
-        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = settings.autoChangeToChannelZoneRU,
-        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = settings.autoChangeToChannelZoneES,
         [CHAT_CHANNEL_MONSTER_SAY]      = settings.autoChangeToChannelNSC,
         [CHAT_CHANNEL_MONSTER_YELL]     = settings.autoChangeToChannelNSC,
         [CHAT_CHANNEL_MONSTER_WHISPER]  = settings.autoChangeToChannelNSC,
@@ -244,16 +240,6 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
             ["withActiveTab"]   = settings.playSoundWithActiveTabZoneJP,
             ["switchToTab"]     = settings.autoOpenZoneJPChannelId,
         },
-        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = {
-            ["sound"]           = settings.playSoundOnMessageZoneRU,
-            ["withActiveTab"]   = settings.playSoundWithActiveTabZoneRU,
-            ["switchToTab"]     = settings.autoOpenZoneRUChannelId,
-        },
-        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = {
-            ["sound"]           = settings.playSoundOnMessageZoneES,
-            ["withActiveTab"]   = settings.playSoundWithActiveTabZoneES,
-            ["switchToTab"]     = settings.autoOpenZoneESChannelId,
-        },
         [CHAT_CHANNEL_MONSTER_SAY]      = {
             ["sound"]           = settings.playSoundOnMessageNSC,
             ["withActiveTab"]   = settings.playSoundWithActiveTabNSC,
@@ -421,32 +407,29 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
             --Now check if the prefered sound to play is currently the correct one as
             --e.g. the group leader sound should be prefered but we aren't in any group
             --First check with the prefered settings
-            local preferedSoundForMultiple = settings.preferedSoundForMultiple
-            if isGroupLeaderSound and IsUnitGrouped("player") and (preferedSoundForMultiple == FCOCTB_CHAT_SOUND_GROUP_LEADER) then
+            if isGroupLeaderSound and IsUnitGrouped("player") and (settings.preferedSoundForMultiple == FCOCTB_CHAT_SOUND_GROUP_LEADER) then
                 soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_GROUP_LEADER]
-            elseif isMessageFromGuildMaster and (preferedSoundForMultiple == FCOCTB_CHAT_SOUND_GUILD_MASTER) then
+            elseif isMessageFromGuildMaster and (settings.preferedSoundForMultiple == FCOCTB_CHAT_SOUND_GUILD_MASTER) then
                 soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_GUILD_MASTER]
-            elseif isFriend and (preferedSoundForMultiple == FCOCTB_CHAT_SOUND_FRIEND) then
+            elseif isFriend and (settings.preferedSoundForMultiple == FCOCTB_CHAT_SOUND_FRIEND) then
                 soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_FRIEND]
-            elseif textFound and (preferedSoundForMultiple == FCOCTB_CHAT_SOUND_TEXT) then
+            elseif textFound and (settings.preferedSoundForMultiple == FCOCTB_CHAT_SOUND_TEXT) then
                 soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_TEXT]
-            elseif characterName and (preferedSoundForMultiple == FCOCTB_CHAT_SOUND_CHARACTER) then
+            elseif characterName and (settings.preferedSoundForMultiple == FCOCTB_CHAT_SOUND_CHARACTER) then
                 soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_CHARACTER]
             end
             --If no sound was set yet (because the priorized sound is group leader but we are not grouped):
             -- Check without the prefered settings then
-            if soundToPlayNow == nil then
-                if isGroupLeaderSound and IsUnitGrouped("player") then
-                    soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_GROUP_LEADER]
-                elseif isMessageFromGuildMaster then
-                    soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_GUILD_MASTER]
-                elseif isFriend then
-                    soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_FRIEND]
-                elseif textFound then
-                    soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_TEXT]
-                elseif characterName then
-                    soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_CHARACTER]
-                end
+            if soundToPlayNow == nil and isGroupLeaderSound and IsUnitGrouped("player") then
+                soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_GROUP_LEADER]
+            elseif soundToPlayNow == nil and isMessageFromGuildMaster then
+                soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_GUILD_MASTER]
+            elseif soundToPlayNow == nil and isFriend then
+                soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_FRIEND]
+            elseif soundToPlayNow == nil and textFound then
+                soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_TEXT]
+            elseif soundToPlayNow == nil and characterName then
+                soundToPlayNow = soundToPlayMapping[FCOCTB_CHAT_SOUND_CHARACTER]
             end
         end
     end
@@ -561,7 +544,7 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
     --Is the chat message sent by myself? Abort then
     if fromName == myAccountName or postingPerson == myAccountName or fromName == myPlayerNameRaw or postingPerson == myPlayerName then
         --Get the used chat channel so the next time we press RETURN will send another message to this chat channel, instead of the chat channel from last incoming message
---(">>[Outgoing] chat message by myself!")
+--d(">>[Outgoing] chat message by myself!")
         if messageType ~= nil and settings.sendingMessageOverwritesChatChannel == true then
             --Overwrite the last incoming chat channel with your currently used chat channel
             FCOChatTabBrain_CheckLastChatChannel(messageType, true)
@@ -663,14 +646,6 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
             ["switchToTab"]	= settings.autoOpenZoneJPChannelId,
             ["idleTime"]    = settings.autoOpenZoneJPIdleTime,
         },
-        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = {
-            ["switchToTab"]	= settings.autoOpenZoneRUChannelId,
-            ["idleTime"]    = settings.autoOpenZoneRUIdleTime,
-        },
-        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = {
-            ["switchToTab"]	= settings.autoOpenZoneESChannelId,
-            ["idleTime"]    = settings.autoOpenZoneESIdleTime,
-        },
         [CHAT_CHANNEL_MONSTER_SAY]      = {
             ["switchToTab"]	= settings.autoOpenNSCChannelId,
             ["idleTime"]    = settings.autoOpenNSCIdleTime,
@@ -714,7 +689,6 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
                     keyWord = string.gsub(keyWord, '([%[%]%%%(%)%{%}%$%^%+])', '[%%%1]')
 --d(">keyword: " ..tostring(keyWord))
                     if string.match(string.lower(messageText), string.lower(keyWord)) then
---d(">> found keyword!")
                         textFound = true
                         break
                     end
@@ -737,13 +711,13 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
                 if messageText == "" then
                     messageText = string.gsub(text, '([%[%]%%%(%)%{%}%$%^%+])', '[%%%1]')
                 end
---d("Message: " .. messageText)
+                --d("Message: " .. messageText)
                 local charnameFragments = { zo_strsplit(" ", myPlayerName) }
                 for _,charnameFragment in ipairs(charnameFragments) do
                     charnameFragment = string.gsub(charnameFragment, '([%[%]%%%(%)%{%}%$%^%+])', '[%%%1]')
                     --d("Check part: " .. charnameFragment)
                     if string.match(string.lower(messageText), string.lower(charnameFragment)) then
---d(">> found character text!")
+                        --d(">> found!")
                         myCharacterNameWasUsed = true
                         break
                     end
@@ -914,7 +888,7 @@ function FCOCTB.PlayerActivated(event)
     local addonVars = FCOCTB.addonVars
     EVENT_MANAGER:UnregisterForEvent(addonVars.gAddonName, event)
 
-    FCOCTB.ChatSystem = ZO_GetChatSystem() or CHAT_SYSTEM
+    FCOCTB.ChatSystem = CHAT_SYSTEM
     chatSystem = FCOCTB.ChatSystem
     FCOCTB.GetChatSystem()
 

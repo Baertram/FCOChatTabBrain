@@ -2,19 +2,13 @@
 FCOCTB = {}
 local FCOCTB = FCOCTB
 
---[[ Known bugs
-
-#1 2022-05-26 Starting the first whisper after reloadui/login is keeping the whisper message in chat editbox
-
-]]
-
 --AddOn info
 FCOCTB.addonVars = {}
 FCOCTB.addonVars.gAddonName				= "FCOChatTabBrain"
 FCOCTB.addonVars.addonNameMenu			= "FCO Chat Tab Brain"
 FCOCTB.addonVars.addonNameMenuDisplay	= "|c00FF00FCO |cFFFF00Chat Tab Brain|r"
 FCOCTB.addonVars.addonAuthor 			= '|cFFFF00Baertram|r'
-FCOCTB.addonVars.addonVersion		   	= 0.06
+FCOCTB.addonVars.addonVersion		   	= 0.06 --Attention: SavedVariables version! Do not change or settings get NILed
 FCOCTB.addonVars.addonVersionOptions 	= '0.4.7'
 FCOCTB.addonVars.addonVersionOptionsNumber = 0.470
 FCOCTB.addonVars.addonWebsite			= "http://www.esoui.com/downloads/info696-FCOChatTabBrain.html#info"
@@ -36,12 +30,6 @@ FCOCTB_CHAT_SOUND_CHARACTER     = 6
 FCOCTB_CHAT_SOUND_MAX           = FCOCTB_CHAT_SOUND_CHARACTER
 
 --[[Variables]]
-FCOCTB.languageMissing = {}
-if CHAT_CHANNEL_ZONE_LANGUAGE_6 == nil then
-    CHAT_CHANNEL_ZONE_LANGUAGE_6 = 37 --Spanish, ES
-    FCOCTB.languageMissing[CHAT_CHANNEL_ZONE_LANGUAGE_6] = true
-end
-
 
 --Preventers
 FCOCTB.preventerVars = {}
@@ -102,9 +90,6 @@ FCOCTB.mappingVars.chatMessageTypeToChatChannel = {
     [CHAT_CHANNEL_ZONE_LANGUAGE_1]  = "/zen",
     [CHAT_CHANNEL_ZONE_LANGUAGE_2]  = "/zfr",
     [CHAT_CHANNEL_ZONE_LANGUAGE_3]  = "/zde",
-    [CHAT_CHANNEL_ZONE_LANGUAGE_4]  = "/zjp",
-    [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = "/zru",
-    [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = "/zes",
 }
 FCOCTB.mappingVars.activeChatChannels = {
     [CHAT_CHANNEL_EMOTE]  = false,
@@ -142,17 +127,7 @@ FCOCTB.mappingVars.activeChatChannels = {
     [CHAT_CHANNEL_ZONE_LANGUAGE_1]  = true,
     [CHAT_CHANNEL_ZONE_LANGUAGE_2]  = true,
     [CHAT_CHANNEL_ZONE_LANGUAGE_3]  = true,
-    [CHAT_CHANNEL_ZONE_LANGUAGE_4]  = true,
-    [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = true,
-    [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = true,
 }
-for chatChannel, isMissing in pairs(FCOCTB.languageMissing) do
-    if isMissing == true then
-        FCOCTB.mappingVars.chatMessageTypeToChatChannel = nil
-        FCOCTB.mappingVars.activeChatChannels[chatChannel] = false
-    end
-end
-
 FCOCTB.mappingVars.activeChatChannelsCategories = {}
 for chatChannelId, isEnabled in pairs(FCOCTB.mappingVars.activeChatChannels) do
     if isEnabled == true then

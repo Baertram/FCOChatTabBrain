@@ -277,21 +277,6 @@ FCOCTB.localizationVars.localizationAll = {
         ["options_chat_sending_message_overwrites_chat_channel_tooltip"]= "If you send a new chat message to someone the last incoming chat message's chat channel will be overwritten by your used chat channel so the next time you press the RETURN key you'll use the same chat channel like your last send message before",
 		["options_chat_remember_last_active_chat_tab"] = "Remember last chat tab (logout)",
 		["options_chat_remember_last_active_chat_tab_tooltip"] = "Remember the last active chat tab after your logout so it will be activated automatically after login again",
-        --2022-05-26
-        ["options_chat_play_sound_zoneru_tab"]           = "'Zone RU'",
-        ["options_chat_play_sound_zoneru_tab_tooltip"]   = "Choose the sound to play if you receive a message in the 'zone RU' chat channel",
-        ["options_chat_auto_change_channel_zonru_tab"]           = "Change channel to 'Zone RU'",
-        ["options_chat_auto_change_channel_zoneru_tab_tooltip"]   = "Changes the chat channel for your next outgoing message automatically to the 'zone RU' channel, if the last message was received from this channel, and you are at the receiving chat tab.",
-        ["options_chat_auto_open_zoneru_tab"]           = "'Zone RU' chat tab",
-        ["options_chat_auto_open_zoneru_tab_tooltip"]   = "Choose your chat tab where the 'zone RU' messages are shown. The addon will automatically open this chat tab upon an incoming zone RU message, if you enable the setting!",
-        ["options_chat_auto_open_idle_time_zoneru_tab"]           = "'Zone RU' idle time (seconds)",
-        ["options_chat_play_sound_zonees_tab"]           = "'Zone ES'",
-        ["options_chat_play_sound_zonees_tab_tooltip"]   = "Choose the sound to play if you receive a message in the 'zone ES' chat channel",
-        ["options_chat_auto_change_channel_zones_tab"]           = "Change channel to 'Zone ES'",
-        ["options_chat_auto_change_channel_zonees_tab_tooltip"]   = "Changes the chat channel for your next outgoing message automatically to the 'zone ES' channel, if the last message was received from this channel, and you are at the receiving chat tab.",
-        ["options_chat_auto_open_zonees_tab"]           = "'Zone ES' chat tab",
-        ["options_chat_auto_open_zonees_tab_tooltip"]   = "Choose your chat tab where the 'zone ES' messages are shown. The addon will automatically open this chat tab upon an incoming zone ES message, if you enable the setting!",
-        ["options_chat_auto_open_idle_time_zonees_tab"]           = "'Zone ES' idle time (seconds)",
 
         --Chat commands
         ["chatcommands_info"]					 = "|c00FF00FCO|cFFFF00Chat Tab Brain|cFFFFFF - Remembers for each chat tab where, and to whom you were speaking",
@@ -591,23 +576,6 @@ FCOCTB.localizationVars.localizationAll = {
         ["options_chat_sending_message_overwrites_chat_channel_tooltip"]= "Wenn du eine neue Chat Nachricht absendest wird der verwendete Chat Kanal der zuletzt eingegangenen Nachricht mit dem Chat Kanal deiner ausgehenden Nachricht überschrieben. Somit kannst du beim nächsten Mal, wenn du die RETURN Taste drückst, wieder im selben Chat Kanal schreiben",
 		["options_chat_remember_last_active_chat_tab"] = "Merke letzten Chat Reiter (Logout)",
 		["options_chat_remember_last_active_chat_tab_tooltip"] = "Merkt sich beim Logout den zuletzt aktiven Chat Reiter und aktiviert diesen automatisch nach dem Login",
-
-        --2022-05-26
-        ["options_chat_auto_open_zoneru_tab"]           = "'Zone RU' Chat Reiter",
-        ["options_chat_auto_open_zoneru_tab_tooltip"]   = "Wähle den Chat Reiter aus auf welchem die 'Zone RU' Nachrichten angezeigt werden. Das Addon wird automatisch diesen Reiter öffnen, wenn du es in den Einstellungen aktivierst!",
-        ["options_chat_auto_change_channel_zoneru_tab"]           = "Chat Kanal zu 'Zone RU' wechseln",
-        ["options_chat_auto_change_channel_zoneru_tab_tooltip"]   = "Wechselt den Chat Kanal für die nächste ausgehende Nachricht automatisch auf den 'Zone RU' Kanal, wenn die letzte Nachricht in diesem eingegangen ist, und du dich auf dem entsprechenden Chat Reiter befindest",
-        ["options_chat_auto_open_idle_time_zoneru_tab"]           = "'Zone RU' Inaktivität (Sekunden)",
-        ["options_chat_play_sound_zoneru_tab"]           = "'Zone RU'",
-        ["options_chat_play_sound_zoneru_tab_tooltip"]   = "Wähle den Klang, der abgespielt wird, wenn du eine Nachricht im Chat Kanal 'Zone RU' erhältst",
-        ["options_chat_auto_open_zonees_tab"]           = "'Zone ES' Chat Reiter",
-        ["options_chat_auto_open_zonees_tab_tooltip"]   = "Wähle den Chat Reiter aus auf welchem die 'Zone ES' Nachrichten angezeigt werden. Das Addon wird automatisch diesen Reiter öffnen, wenn du es in den Einstellungen aktivierst!",
-        ["options_chat_auto_change_channel_zonees_tab"]           = "Chat Kanal zu 'Zone ES' wechseln",
-        ["options_chat_auto_change_channel_zonees_tab_tooltip"]   = "Wechselt den Chat Kanal für die nächste ausgehende Nachricht automatisch auf den 'Zone ES' Kanal, wenn die letzte Nachricht in diesem eingegangen ist, und du dich auf dem entsprechenden Chat Reiter befindest",
-        ["options_chat_auto_open_idle_time_zonees_tab"]           = "'Zone ES' Inaktivität (Sekunden)",
-        ["options_chat_play_sound_zonees_tab"]           = "'Zone ES'",
-        ["options_chat_play_sound_zonees_tab_tooltip"]   = "Wähle den Klang, der abgespielt wird, wenn du eine Nachricht im Chat Kanal 'Zone ES' erhältst",
-
         --Chat commands
         ["chatcommands_info"]					 = "|c00FF00FCO|cFFFF00Chat Tab Brain|cFFFFFF - Erinnert sich für jeden Chat Reiter an den letzten Kanal und Chatpartner",
         ["chatcommands_help"]					 = "'help' / 'list': Zeige diese Informationen über das Addon",
