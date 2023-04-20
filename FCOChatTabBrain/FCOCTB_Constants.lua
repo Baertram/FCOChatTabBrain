@@ -45,6 +45,7 @@ FCOCTB.preventerVars.timeNotReached	= false
 FCOCTB.preventerVars.chatMinimizeButtonClicked = false
 FCOCTB.preventerVars.defaultTabIdleTime = 0
 FCOCTB.preventerVars.doNotDoShiftClickCheck = false
+FCOCTB.preventerVars.scrollingChatTab = false
 
 --Localization
 FCOCTB.localizationVars = {}
@@ -61,7 +62,7 @@ FCOCTB.numVars = {}
 
 --Languages
 --Available languages
-FCOCTB.numVars.languageCount = 7 --English, German, French, Spanish, Italian, Japanese, Russian
+FCOCTB.numVars.languageCount = 8 --English, German, French, Spanish, Italian, Japanese, Russian, Chinese
 FCOCTB.langVars = {}
 FCOCTB.langVars.languages = {}
 --Build the languages array
@@ -90,6 +91,10 @@ FCOCTB.mappingVars.chatMessageTypeToChatChannel = {
     [CHAT_CHANNEL_ZONE_LANGUAGE_1]  = "/zen",
     [CHAT_CHANNEL_ZONE_LANGUAGE_2]  = "/zfr",
     [CHAT_CHANNEL_ZONE_LANGUAGE_3]  = "/zde",
+    [CHAT_CHANNEL_ZONE_LANGUAGE_4]  = "/zjp",
+    [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = "/zru",
+    [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = "/zes",
+    [CHAT_CHANNEL_ZONE_LANGUAGE_7]  = "/zzh",
 }
 FCOCTB.mappingVars.activeChatChannels = {
     [CHAT_CHANNEL_EMOTE]  = false,
@@ -127,6 +132,10 @@ FCOCTB.mappingVars.activeChatChannels = {
     [CHAT_CHANNEL_ZONE_LANGUAGE_1]  = true,
     [CHAT_CHANNEL_ZONE_LANGUAGE_2]  = true,
     [CHAT_CHANNEL_ZONE_LANGUAGE_3]  = true,
+    [CHAT_CHANNEL_ZONE_LANGUAGE_4]  = true,
+    [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = true,
+    [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = true,
+    [CHAT_CHANNEL_ZONE_LANGUAGE_7]  = true,
 }
 FCOCTB.mappingVars.activeChatChannelsCategories = {}
 for chatChannelId, isEnabled in pairs(FCOCTB.mappingVars.activeChatChannels) do

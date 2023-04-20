@@ -26,6 +26,16 @@
                     end
                 </Down>
             </Action>
+            <Action name="FCO_CHAT_SCROLL_TO_BOTTOM">
+                <Down>
+                    FCOCTB.ScrollChatTabToBottom()
+                </Down>
+            </Action>
+            <Action name="FCO_CHAT_SCROLL_TO_TOP">
+                <Down>
+                    FCOCTB.ScrollChatTabToTop()
+                </Down>
+            </Action>
             <Action name="FCO_CHAT_TAB_CLEAR">
                 <Down>
                     FCOCTB.ClearChatBuffer()
@@ -33,62 +43,62 @@
             </Action>
             <Action name="FCO_CHAT_TABS_LEFT">
                 <Down>
-                    FCOCTB.CycleChatTab("-")
+                    FCOCTB.CycleChatTab("-", nil, true)
                 </Down>
             </Action>
             <Action name="FCO_CHAT_TABS_RIGHT">
                 <Down>
-                    FCOCTB.CycleChatTab("+")
+                    FCOCTB.CycleChatTab("+", nil, true)
                 </Down>
             </Action>
             <Action name="FCO_CHAT_TABS_TO_TAB_1">
                 <Down>
-                    FCOCTB.CycleChatTab(1)
+                    FCOCTB.CycleChatTab(1, nil, true)
                 </Down>
             </Action>
             <Action name="FCO_CHAT_TABS_TO_TAB_2">
                 <Down>
-                    FCOCTB.CycleChatTab(2)
+                    FCOCTB.CycleChatTab(2, nil, true)
                 </Down>
             </Action>
             <Action name="FCO_CHAT_TABS_TO_TAB_3">
                 <Down>
-                    FCOCTB.CycleChatTab(3)
+                    FCOCTB.CycleChatTab(3, nil, true)
                 </Down>
             </Action>
             <Action name="FCO_CHAT_TABS_TO_TAB_4">
                 <Down>
-                    FCOCTB.CycleChatTab(4)
+                    FCOCTB.CycleChatTab(4, nil, true)
                 </Down>
             </Action>
             <Action name="FCO_CHAT_TABS_TO_TAB_5">
                 <Down>
-                    FCOCTB.CycleChatTab(5)
+                    FCOCTB.CycleChatTab(5, nil, true)
                 </Down>
             </Action>
             <Action name="FCO_CHAT_TABS_TO_TAB_6">
                 <Down>
-                    FCOCTB.CycleChatTab(6)
+                    FCOCTB.CycleChatTab(6, nil, true)
                 </Down>
             </Action>
             <Action name="FCO_CHAT_TABS_TO_TAB_7">
                 <Down>
-                    FCOCTB.CycleChatTab(7)
+                    FCOCTB.CycleChatTab(7, nil, true)
                 </Down>
             </Action>
             <Action name="FCO_CHAT_TABS_TO_TAB_8">
                 <Down>
-                    FCOCTB.CycleChatTab(8)
+                    FCOCTB.CycleChatTab(8, nil, true)
                 </Down>
             </Action>
             <Action name="FCO_CHAT_TABS_TO_TAB_9">
                 <Down>
-                    FCOCTB.CycleChatTab(9)
+                    FCOCTB.CycleChatTab(9, nil, true)
                 </Down>
             </Action>
             <Action name="FCO_CHAT_TABS_TO_TAB_10">
                 <Down>
-                    FCOCTB.CycleChatTab(10)
+                    FCOCTB.CycleChatTab(10, nil, true)
                 </Down>
             </Action>
             <Action name="FCO_CHAT_CYCLE_CHAT_CHANNEL">

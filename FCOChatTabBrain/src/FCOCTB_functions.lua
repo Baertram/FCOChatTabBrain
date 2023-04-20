@@ -9,7 +9,7 @@ function FCOCTB.GetChatSystem()
     chatSystem = FCOCTB.ChatSystem
 end
 
---Function to cycle through the last 3 chat channels at the given chat tab
+--Function to cycle through the last chat channels at the given chat tab
 function FCOCTB.CycleChatChannel()
     FCOCTB.SetUserLastAction()
     --Get the actual chat tab (index)
@@ -53,8 +53,9 @@ end
 --function to cycle the chat tab to left/right or given index
 --chatTabIndex can be 1 to N (where N is the current maximum chat tab)
 --or "-" to cycle left or "+" to cycle right
-function FCOCTB.CycleChatTab(chatTabIndex, doOverride)
+function FCOCTB.CycleChatTab(chatTabIndex, doOverride, byKeybind)
     doOverride = doOverride or false
+    byKeybind = byKeybind or false
     if not doOverride then FCOCTB.SetUserLastAction() end
     local container = chatSystem.primaryContainer
     if not container then return nil end
@@ -90,6 +91,12 @@ function FCOCTB.CycleChatTab(chatTabIndex, doOverride)
             container:FadeIn()
         end
         FCOCTB.preventerVars.doNotDoShiftClickCheck = false
+
+        if byKeybind == true and settings.autoScrollToChatBottomUponKeybindTabSwitch == true then
+            FCOCTB.ScrollChatTabToBottom()
+        end
+
+        return true
     else
         return nil
     end
@@ -280,13 +287,78 @@ function FCOCTB.ChangeChatTabNow(chatTabIndex, doOverride)
     if  chatTabIndex == nil or chatTabIndex == 0 or currentIndex == chatTabIndex
         or primaryContainer.windows[chatTabIndex].tab == nil
         or FCOCTB.CheckIfChatTextEditIsUsed() then
-        return
+        return nil
     end
     FCOCTB.preventerVars.changingToNewChatTab = true
     --Change the chat tab now to new chat tab
-    FCOCTB.CycleChatTab(chatTabIndex)
+    local wasTabChanged = FCOCTB.CycleChatTab(chatTabIndex)
     FCOCTB.preventerVars.changingToNewChatTab = false
+    return wasTabChanged
 end
+
+local function isChatContainerScrollbarEnabled()
+    local primaryContainer = chatSystem.primaryContainer
+    if not primaryContainer or not primaryContainer.scrollbar then return false end
+    return primaryContainer:GetCurrentMaxScroll() > 1
+end
+
+local function FCOCTB_ScrollChat(scrollWhere)
+    --d("[FCOCTB]ScrollChat: " ..tostring(scrollWhere))
+    local primaryContainer = chatSystem.primaryContainer
+    --primaryContainer.scrollbar
+    --primaryContainer.scrollUpButton
+    --primaryContainer.scrollDownButton
+    --primaryContainer.scrollEndButton
+
+    if scrollWhere == "bottom" then
+--d(">scrolling to bottom")
+        FCOCTB.preventerVars.scrollingChatTab = true
+        primaryContainer:ScrollToBottom()
+        FCOCTB.preventerVars.scrollingChatTab = false
+        return true
+    elseif scrollWhere == "top" then
+--d(">scrolling to top")
+        FCOCTB.preventerVars.scrollingChatTab = true
+        primaryContainer:SetScroll(0)
+        FCOCTB.preventerVars.scrollingChatTab = false
+        return true
+    end
+    FCOCTB.preventerVars.scrollingChatTab = false
+    return false
+end
+
+local function getChatScrollPos()
+    local primaryContainer = chatSystem.primaryContainer
+    --if primaryContainer.system:IsMinimized() then return end
+    local scrollMin, scrollMax = primaryContainer.scrollbar:GetMinMax()
+    local scrollCurrent = primaryContainer.scrollbar:GetValue()
+    return scrollMin, scrollMax, scrollCurrent
+end
+
+function FCOCTB.ScrollChatTabToTop()
+    if not isChatContainerScrollbarEnabled() then return end
+    local scrollMin, scrollMax, scrollCurrent = getChatScrollPos()
+--d("[FCOCTB]scrollTop-current: " ..tostring(scrollCurrent) .. ", max: " ..tostring(scrollMax) .. ", min: " ..tostring(scrollMin))
+    if scrollCurrent <= scrollMin then
+        return false
+    end
+    --Change the chat tab now to new chat tab
+    return FCOCTB_ScrollChat("top")
+end
+
+function FCOCTB.ScrollChatTabToBottom()
+    if not isChatContainerScrollbarEnabled() then return end
+    local scrollMin, scrollMax, scrollCurrent = getChatScrollPos()
+
+--d("[FCOCTB]scrollBottom-current: " ..tostring(scrollCurrent) .. ", max: " ..tostring(scrollMax) .. ", min: " ..tostring(scrollMin))
+    if scrollCurrent >= scrollMax then
+        return
+    end
+
+    --Change the chat tab now to new chat tab
+    return FCOCTB_ScrollChat("bottom")
+end
+
 
 --Reset the general idle timer now so it will start to count from the beginning
 function FCOCTB.SetupDefaultTabIdleTimer(startOrStop)

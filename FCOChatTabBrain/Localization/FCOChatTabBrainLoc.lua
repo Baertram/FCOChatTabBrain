@@ -37,6 +37,7 @@ FCOCTB.localizationVars.localizationAll = {
         ["options_language_dropdown_selection5"] = "Italian",
         ["options_language_dropdown_selection6"] = "Japanese",
         ["options_language_dropdown_selection7"] = "Russian",
+        ["options_language_dropdown_selection8"] = "Chinese",
 		["options_language_description1"]		 = "CAUTION: Changing the language/save option will reload the user interface!",
         ["options_savedvariables"]				 = "Save settings",
         ["options_savedvariables_tooltip"]       = "Save the addon settings for all your characters of your account, or single for each character",
@@ -45,6 +46,10 @@ FCOCTB.localizationVars.localizationAll = {
 		["options_header_options"]				 = "Options",
 		["options_checkbox_enable"]				 = "Enable chat brain",
 		["options_checkbox_enable_tooltip"]		 = "Allow/Disallow the chat tabs to remember their last written channel and player",
+
+        ["options_checkbox_autoscrollToBottom"]		= "Autom. scroll to bottom",
+        ["options_checkbox_autoscrollToBottom_TT"]	= "Automatically scroll the chat to the bottom upon a new incoming message (respects the inactive timer/functionality).",
+
 		["options_header_chat_options"]			 = "Chat options",
         ["options_header_chat_tabs"]             = "Chat tabs",
         ["options_header_chat_channels"]         = "Chat channels",
@@ -278,6 +283,34 @@ FCOCTB.localizationVars.localizationAll = {
 		["options_chat_remember_last_active_chat_tab"] = "Remember last chat tab (logout)",
 		["options_chat_remember_last_active_chat_tab_tooltip"] = "Remember the last active chat tab after your logout so it will be activated automatically after login again",
 
+        ["options_chat_auto_open_zoneru_tab"]           = "'Zone RU' chat tab",
+        ["options_chat_auto_open_zoneru_tab_tooltip"]   = "Choose your chat tab where the 'zone RU' messages are shown. The addon will automatically open this chat tab upon an incoming zone RU message, if you enable the setting!",
+        ["options_chat_auto_open_idle_time_zoneru_tab"]           = "'Zone RU' idle time (seconds)",
+        ["options_chat_auto_change_channel_zoneru_tab"]           = "Change channel to 'Zone RU'",
+        ["options_chat_auto_change_channel_zoneru_tab_tooltip"]   = "Changes the chat channel for your next outgoing message automatically to the 'zone RU' channel, if the last message was received from this channel, and you are at the receiving chat tab.",
+        ["options_chat_play_sound_zoneru_tab"]           = "'Zone RU'",
+        ["options_chat_play_sound_zoneru_tab_tooltip"]   = "Choose the sound to play if you receive a message in the 'zone RU' chat channel",
+
+        ["options_chat_auto_open_zonees_tab"]           = "'Zone ES' chat tab",
+        ["options_chat_auto_open_zonees_tab_tooltip"]   = "Choose your chat tab where the 'zone ES' messages are shown. The addon will automatically open this chat tab upon an incoming zone ES message, if you enable the setting!",
+        ["options_chat_auto_open_idle_time_zonees_tab"]           = "'Zone ES' idle time (seconds)",
+        ["options_chat_auto_change_channel_zonees_tab"]           = "Change channel to 'Zone ES'",
+        ["options_chat_auto_change_channel_zonees_tab_tooltip"]   = "Changes the chat channel for your next outgoing message automatically to the 'zone ES' channel, if the last message was received from this channel, and you are at the receiving chat tab.",
+        ["options_chat_play_sound_zonees_tab"]           = "'Zone ES'",
+        ["options_chat_play_sound_zonees_tab_tooltip"]   = "Choose the sound to play if you receive a message in the 'zone ES' chat channel",
+
+        ["options_chat_auto_open_zonezh_tab"]           = "'Zone ZH' chat tab",
+        ["options_chat_auto_open_zonezh_tab_tooltip"]   = "Choose your chat tab where the 'zone ZH' messages are shown. The addon will automatically open this chat tab upon an incoming zone ZH message, if you enable the setting!",
+        ["options_chat_auto_open_idle_time_zonezh_tab"]           = "'Zone ZH' idle time (seconds)",
+        ["options_chat_auto_change_channel_zonezh_tab"]           = "Change channel to 'Zone ZH'",
+        ["options_chat_auto_change_channel_zonezh_tab_tooltip"]   = "Changes the chat channel for your next outgoing message automatically to the 'zone ZH' channel, if the last message was received from this channel, and you are at the receiving chat tab.",
+        ["options_chat_play_sound_zonezh_tab"]           = "'Zone ZH'",
+        ["options_chat_play_sound_zonezh_tab_tooltip"]   = "Choose the sound to play if you receive a message in the 'zone ZH' chat channel",
+
+        ["options_chat_tab_switch_by_keybind_scroll_to_bottom"] = "Keybind tab change: Scroll to bottom",
+        ["options_chat_tab_switch_by_keybind_scroll_to_bottom_TT"] = "If you use a keybind that switches a chat tab: Automatically scroll the chat to the bottom",
+
+
         --Chat commands
         ["chatcommands_info"]					 = "|c00FF00FCO|cFFFF00Chat Tab Brain|cFFFFFF - Remembers for each chat tab where, and to whom you were speaking",
         ["chatcommands_help"]					 = "'help' / 'list': Shows this information about the addon",
@@ -305,6 +338,8 @@ FCOCTB.localizationVars.localizationAll = {
 		["SI_BINDING_NAME_FCO_CHAT_TABS_TO_TAB_10"]	= "Select chat tab 10",
         ["SI_BINDING_NAME_FCO_CHAT_TAB_CLEAR"]      = "Clear chat tab",
         ["SI_BINDING_NAME_FCO_CHAT_CYCLE_CHAT_CHANNEL"] = "Cycle through last chat channels",
+        ["SI_BINDING_NAME_FCO_CHAT_SCROLL_TO_TOP"] = "Scroll to top",
+        ["SI_BINDING_NAME_FCO_CHAT_SCROLL_TO_BOTTOM"] = "Scroll to bottom",
 
         --Error messages
         ["error_only_numbers_allowed"]              = "|cDD2222[FCOChatTabBrain ERROR]|r |cF0F0F0Only digits from 0-9 are allowed!|r",
@@ -330,6 +365,7 @@ FCOCTB.localizationVars.localizationAll = {
         ["options_language_dropdown_selection5"] = "Italienisch",
         ["options_language_dropdown_selection6"] = "Japanisch",
         ["options_language_dropdown_selection7"] = "Russisch",
+        ["options_language_dropdown_selection8"] = "Chinesisch",
 		["options_language_description1"]		 = "ACHTUNG: Veränderungen der Sprache/der Speicherart laden die Benutzeroberfläche neu!",
         ["options_savedvariables"]				 = "Einstellungen speichern",
         ["options_savedvariables_tooltip"]       = "Die Einstellungen dieses Addons werden für alle Charactere Ihres Accounts, oder für jeden Character einzeln gespeichert",
@@ -338,6 +374,10 @@ FCOCTB.localizationVars.localizationAll = {
 		["options_header_options"]				 = "Optionen",
 		["options_checkbox_enable"]				 = "Chat Gedächtnis aktivieren",
 		["options_checkbox_enable_tooltip"]		 = "Erlaube/Verbiete dem Chat Gedächtnis sich den letzten Kanal und Chatpartner zu merken.",
+
+        ["options_checkbox_autoscrollToBottom"]		= "Autom. nach unten scrollen",
+        ["options_checkbox_autoscrollToBottom_TT"]	= "Automatisch den Chat nach ganz unten scrolle wenn eine neue Nachricht hereinkommt (dies berücksichtigt die Inaktivitäts-Enstellungen).",
+
 		["options_header_chat_options"]			 = "Chat Optionen",
         ["options_header_chat_tabs"]             = "Chat Reiter",
         ["options_header_chat_channels"]         = "Chat Kanäle",
@@ -576,6 +616,35 @@ FCOCTB.localizationVars.localizationAll = {
         ["options_chat_sending_message_overwrites_chat_channel_tooltip"]= "Wenn du eine neue Chat Nachricht absendest wird der verwendete Chat Kanal der zuletzt eingegangenen Nachricht mit dem Chat Kanal deiner ausgehenden Nachricht überschrieben. Somit kannst du beim nächsten Mal, wenn du die RETURN Taste drückst, wieder im selben Chat Kanal schreiben",
 		["options_chat_remember_last_active_chat_tab"] = "Merke letzten Chat Reiter (Logout)",
 		["options_chat_remember_last_active_chat_tab_tooltip"] = "Merkt sich beim Logout den zuletzt aktiven Chat Reiter und aktiviert diesen automatisch nach dem Login",
+
+
+        ["options_chat_auto_open_zoneru_tab"]           = "'Zone RU' Chat Reiter",
+        ["options_chat_auto_open_zoneru_tab_tooltip"]   = "Wähle den Chat Reiter aus auf welchem die 'Zone RU' Nachrichten angezeigt werden. Das Addon wird automatisch diesen Reiter öffnen, wenn du es in den Einstellungen aktivierst!",
+        ["options_chat_auto_change_channel_zoneru_tab"]           = "Chat Kanal zu 'Zone RU' wechseln",
+        ["options_chat_auto_change_channel_zoneru_tab_tooltip"]   = "Wechselt den Chat Kanal für die nächste ausgehende Nachricht automatisch auf den 'Zone RU' Kanal, wenn die letzte Nachricht in diesem eingegangen ist, und du dich auf dem entsprechenden Chat Reiter befindest",
+        ["options_chat_auto_open_idle_time_zoneru_tab"]           = "'Zone RU' Inaktivität (Sekunden)",
+        ["options_chat_play_sound_zoneru_tab"]           = "'Zone RU'",
+        ["options_chat_play_sound_zoneru_tab_tooltip"]   = "Wähle den Klang, der abgespielt wird, wenn du eine Nachricht im Chat Kanal 'Zone RU' erhältst",
+
+        ["options_chat_auto_open_zonees_tab"]           = "'Zone ES' Chat Reiter",
+        ["options_chat_auto_open_zonees_tab_tooltip"]   = "Wähle den Chat Reiter aus auf welchem die 'Zone ES' Nachrichten angezeigt werden. Das Addon wird automatisch diesen Reiter öffnen, wenn du es in den Einstellungen aktivierst!",
+        ["options_chat_auto_change_channel_zonees_tab"]           = "Chat Kanal zu 'Zone ES' wechseln",
+        ["options_chat_auto_change_channel_zonees_tab_tooltip"]   = "Wechselt den Chat Kanal für die nächste ausgehende Nachricht automatisch auf den 'Zone ES' Kanal, wenn die letzte Nachricht in diesem eingegangen ist, und du dich auf dem entsprechenden Chat Reiter befindest",
+        ["options_chat_auto_open_idle_time_zonees_tab"]           = "'Zone ES' Inaktivität (Sekunden)",
+        ["options_chat_play_sound_zonees_tab"]           = "'Zone ES'",
+        ["options_chat_play_sound_zonees_tab_tooltip"]   = "Wähle den Klang, der abgespielt wird, wenn du eine Nachricht im Chat Kanal 'Zone ES' erhältst",
+
+        ["options_chat_auto_open_zonezh_tab"]           = "'Zone ZH' Chat Reiter",
+        ["options_chat_auto_open_zonezh_tab_tooltip"]   = "Wähle den Chat Reiter aus auf welchem die 'Zone ZH' Nachrichten angezeigt werden. Das Addon wird automatisch diesen Reiter öffnen, wenn du es in den Einstellungen aktivierst!",
+        ["options_chat_auto_change_channel_zonezh_tab"]           = "Chat Kanal zu 'Zone ZH' wechseln",
+        ["options_chat_auto_change_channel_zonezh_tab_tooltip"]   = "Wechselt den Chat Kanal für die nächste ausgehende Nachricht automatisch auf den 'Zone ZH' Kanal, wenn die letzte Nachricht in diesem eingegangen ist, und du dich auf dem entsprechenden Chat Reiter befindest",
+        ["options_chat_auto_open_idle_time_zonezh_tab"]           = "'Zone ZH' Inaktivität (Sekunden)",
+        ["options_chat_play_sound_zonezh_tab"]           = "'Zone ZH'",
+        ["options_chat_play_sound_zonezh_tab_tooltip"]   = "Wähle den Klang, der abgespielt wird, wenn du eine Nachricht im Chat Kanal 'Zone ZH' erhältst",
+
+        ["options_chat_tab_switch_by_keybind_scroll_to_bottom"] = "Keybind Reiter Wechsel: Herunter scrollen",
+        ["options_chat_tab_switch_by_keybind_scroll_to_bottom_TT"] = "Wenn du einen Chat Reiter Wechsel über eine Tastenkombination durchführst: Automatisch den Chat nach unten scrollen",
+
         --Chat commands
         ["chatcommands_info"]					 = "|c00FF00FCO|cFFFF00Chat Tab Brain|cFFFFFF - Erinnert sich für jeden Chat Reiter an den letzten Kanal und Chatpartner",
         ["chatcommands_help"]					 = "'help' / 'list': Zeige diese Informationen über das Addon",
@@ -603,6 +672,8 @@ FCOCTB.localizationVars.localizationAll = {
 		["SI_BINDING_NAME_FCO_CHAT_TABS_TO_TAB_10"]	= "Chat Reiter 10 auswählen",
         ["SI_BINDING_NAME_FCO_CHAT_TAB_CLEAR"]      = "Chat Reiter leeren",
         ["SI_BINDING_NAME_FCO_CHAT_CYCLE_CHAT_CHANNEL"] = "Durch letzte Chat Kanäle wechseln",
+        ["SI_BINDING_NAME_FCO_CHAT_SCROLL_TO_TOP"] = "Ganz hoch scrollen",
+        ["SI_BINDING_NAME_FCO_CHAT_SCROLL_TO_BOTTOM"] = "Ganz herunter scrollen",
 
 
         --Error messages
@@ -629,6 +700,7 @@ FCOCTB.localizationVars.localizationAll = {
         ["options_language_dropdown_selection5"]         		= "Italien",
         ["options_language_dropdown_selection6"]         		= "Japonais",
         ["options_language_dropdown_selection7"]         		= "Russe",
+        ["options_language_dropdown_selection8"]                = "Chinois",
         ["options_language_description1"]                		= "Attention : modifier un de ces réglages entraînera le rechargement de l'interface utilisateur.",
         ["options_savedvariables"]                       		= "Appliquer les réglages",
         ["options_savedvariables_tooltip"]               		= "Sauvegarde les réglages de l'extension pour tous les personnages du compte ou pour chaque personnage individuellement.",
@@ -904,6 +976,7 @@ FCOCTB.localizationVars.localizationAll = {
         ["options_language_dropdown_selection5"] 		 = "Italiano",
         ["options_language_dropdown_selection6"]         = "Japonés",
         ["options_language_dropdown_selection7"] 		 = "Ruso",
+        ["options_language_dropdown_selection8"]         = "Chino",
 		["options_language_description1"]				 = "CUIDADO: Modificar uno de esos parámetros recargará la interfaz",
 		["options_savedvariables"]						 = "Guardar",
 		["options_savedvariables_tooltip"] 				 = "Guardar los parámetros del addon para toda la cuenta o individualmente para cada personaje",
@@ -1124,6 +1197,7 @@ FCOCTB.localizationVars.localizationAll = {
         ["options_language_dropdown_selection5"] = "Italiano",
         ["options_language_dropdown_selection6"] = "Giapponese",
         ["options_language_dropdown_selection7"] = "Russo",
+        ["options_language_dropdown_selection8"] = "Cinese",
         ["options_language_description1"]		 = "ATTENZIONE: modifica della lingua opzione / salvare ricaricherà l'interfaccia utente!",
         ["options_reloadui"]					 = "ATTENZIONE: La modifica di questa opzione ricaricherà l'interfaccia utente!",
         ["options_savedvariables"]				 = "Salvare le impostazioni",
@@ -1386,6 +1460,7 @@ FCOCTB.localizationVars.localizationAll = {
         ["options_language_dropdown_selection5"] = "イタリア語",
         ["options_language_dropdown_selection6"] = "日本語",
         ["options_language_dropdown_selection7"] = "ロシア",
+        ["options_language_dropdown_selection8"] = "中国語",
         ["options_language_description1"]        = "注意: 言語の変更/オプションの保存はUIをリロードします！",
         ["options_savedvariables"]               = "設定を保存",
         ["options_savedvariables_tooltip"]       = "Addon設定を全てのキャラクターで保存するか、キャラクターごとに保存します",
@@ -1650,12 +1725,18 @@ FCOCTB.localizationVars.localizationAll = {
 		["options_language_dropdown_selection5"] = "Итaльянcкий",
 		["options_language_dropdown_selection6"] = "Япoнcкий",
 		["options_language_dropdown_selection7"] = "Pуccкий",
+        ["options_language_dropdown_selection8"] = "Китайский",
 		["options_language_description1"] = "ВНИМAНИE: Измeнeниe языкa/нacтpoeк coxpaнeния пpивeдeт к пepeзaгpузкe интepфeйca!",
 		["options_savedvariables"] = "Нacтpoйки coxpaнeния",
 		["options_savedvariables_tooltip"] = "Coxpaнять oбщиe нacтpoйки для вcex пepcoнaжeй aккaунтa или oтдeльныe для кaждoгo пepcoнaжa",
 		["options_savedVariables_dropdown_selection1"] = "Для кaждoгo пepcoнaжa",
 		["options_savedVariables_dropdown_selection2"] = "Oбщиe нa aккaунт",
 	},
+--==============================================================================
+    -- Chinese
+    [8] = {
+        ["options_description"]                  = "Remembers for each chat tab where, and to whom you were speaking. In addition it will provide you with keybindings to change the chat tabs, automatically open chat tabs upon incoming messages and redirect outgoing whispers all to one chat tab.",
+    }
 }
 --Meta table trick to use english localization for german, french and spanish values, which are missing
 local fco_ctbloc = FCOCTB.localizationVars.localizationAll
@@ -1665,3 +1746,4 @@ setmetatable(fco_ctbloc[4], {__index = fco_ctbloc[1]})
 setmetatable(fco_ctbloc[5], {__index = fco_ctbloc[1]})
 setmetatable(fco_ctbloc[6], {__index = fco_ctbloc[1]})
 setmetatable(fco_ctbloc[7], {__index = fco_ctbloc[1]})
+setmetatable(fco_ctbloc[8], {__index = fco_ctbloc[1]})

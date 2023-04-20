@@ -35,6 +35,9 @@ local function FCOChatTabBrain_CheckLastChatChannel(messageType, overwrite)
         [CHAT_CHANNEL_ZONE_LANGUAGE_2]  = settings.autoOpenZoneFRChannelId,
         [CHAT_CHANNEL_ZONE_LANGUAGE_3]  = settings.autoOpenZoneDEChannelId,
         [CHAT_CHANNEL_ZONE_LANGUAGE_4]  = settings.autoOpenZoneJPChannelId,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = settings.autoOpenZoneRUChannelId,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = settings.autoOpenZoneESChannelId,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_7]  = settings.autoOpenZoneZHChannelId,
         [CHAT_CHANNEL_MONSTER_SAY]      = settings.autoOpenNSCChannelId,
         [CHAT_CHANNEL_MONSTER_YELL]     = settings.autoOpenNSCChannelId,
         [CHAT_CHANNEL_MONSTER_WHISPER]  = settings.autoOpenNSCChannelId,
@@ -60,6 +63,9 @@ local function FCOChatTabBrain_CheckLastChatChannel(messageType, overwrite)
         [CHAT_CHANNEL_ZONE_LANGUAGE_2]  = settings.autoChangeToChannelZoneFR,
         [CHAT_CHANNEL_ZONE_LANGUAGE_3]  = settings.autoChangeToChannelZoneDE,
         [CHAT_CHANNEL_ZONE_LANGUAGE_4]  = settings.autoChangeToChannelZoneJP,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = settings.autoChangeToChannelZoneRU,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = settings.autoChangeToChannelZoneES,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_7]  = settings.autoChangeToChannelZoneZH,
         [CHAT_CHANNEL_MONSTER_SAY]      = settings.autoChangeToChannelNSC,
         [CHAT_CHANNEL_MONSTER_YELL]     = settings.autoChangeToChannelNSC,
         [CHAT_CHANNEL_MONSTER_WHISPER]  = settings.autoChangeToChannelNSC,
@@ -239,6 +245,21 @@ local function FCOChatTabBrain_CheckPlaySound(messageType, isFriend, textFound, 
             ["sound"]           = settings.playSoundOnMessageZoneJP,
             ["withActiveTab"]   = settings.playSoundWithActiveTabZoneJP,
             ["switchToTab"]     = settings.autoOpenZoneJPChannelId,
+        },
+        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = {
+            ["sound"]           = settings.playSoundOnMessageZoneRU,
+            ["withActiveTab"]   = settings.playSoundWithActiveTabZoneRU,
+            ["switchToTab"]     = settings.autoOpenZoneRUChannelId,
+        },
+        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = {
+            ["sound"]           = settings.playSoundOnMessageZoneES,
+            ["withActiveTab"]   = settings.playSoundWithActiveTabZoneES,
+            ["switchToTab"]     = settings.autoOpenZoneESChannelId,
+        },
+        [CHAT_CHANNEL_ZONE_LANGUAGE_7]  = {
+            ["sound"]           = settings.playSoundOnMessageZoneZH,
+            ["withActiveTab"]   = settings.playSoundWithActiveTabZoneZH,
+            ["switchToTab"]     = settings.autoOpenZoneZHChannelId,
         },
         [CHAT_CHANNEL_MONSTER_SAY]      = {
             ["sound"]           = settings.playSoundOnMessageNSC,
@@ -646,6 +667,18 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
             ["switchToTab"]	= settings.autoOpenZoneJPChannelId,
             ["idleTime"]    = settings.autoOpenZoneJPIdleTime,
         },
+        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = {
+            ["switchToTab"]	= settings.autoOpenZoneRUChannelId,
+            ["idleTime"]    = settings.autoOpenZoneRUIdleTime,
+        },
+        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = {
+            ["switchToTab"]	= settings.autoOpenZoneESChannelId,
+            ["idleTime"]    = settings.autoOpenZoneESIdleTime,
+        },
+        [CHAT_CHANNEL_ZONE_LANGUAGE_7]  = {
+            ["switchToTab"]	= settings.autoOpenZoneZHChannelId,
+            ["idleTime"]    = settings.autoOpenZoneZHIdleTime,
+        },
         [CHAT_CHANNEL_MONSTER_SAY]      = {
             ["switchToTab"]	= settings.autoOpenNSCChannelId,
             ["idleTime"]    = settings.autoOpenNSCIdleTime,
@@ -838,11 +871,14 @@ local function FCOChatTabBrain_ChatMessageChannel(eventCode, messageType, fromNa
     end
 --d("[FCOCTB]changeChatTabNow: " ..tostring(changeChatTabNow).. ", switchToTabIndex: " ..tostring(switchToTabIndex) .. ", timeNotReached: " ..tostring(prevVars.timeNotReached))
     --Change the chat tab now?
-    if changeChatTabNow then
+    if changeChatTabNow == true then
         --Is the setting enabled to change to a default chat tab after an general idle time?
         --FCOCTB.SetupDefaultTabIdleTimer()
         --Change the active chat tab now
-        FCOCTB.ChangeChatTabNow(switchToTabIndex)
+        local wasTabChanged, _ = FCOCTB.ChangeChatTabNow(switchToTabIndex)
+        if wasTabChanged == true and settings.autoScrollToChatBottomUponNewIncomingMsg == true then
+            FCOCTB.ScrollChatTabToBottom()
+        end
     else
         local numChatTabs = chatSystem.primaryContainer and chatSystem.primaryContainer.windows and #chatSystem.primaryContainer.windows
         --Change the chat tab text color if new message arrives?

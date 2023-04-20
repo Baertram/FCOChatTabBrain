@@ -1,6 +1,9 @@
 FCOCTB = FCOCTB or {}
 local FCOCTB = FCOCTB
 
+local tos = tostring
+local strfor = string.format
+
 local addonName = FCOCTB.addonVars.gAddonName
 local chatSystem = FCOCTB.ChatSystem
 
@@ -28,7 +31,17 @@ local function ToggleMarkAll(chatContainer, hasAllMarked, cbTypes)
     local CBs = chatContainer.owner.filterButtons
     if CBs == nil or #CBs == 0 then return end
 
-    local filterButtons     = {}
+    local filterButtons     = { filter = {}, guild = {} }
+
+    local filtersPattern = "%sCheck"
+    local parentFilter = ZO_ChatOptionsDialogFilterSection
+    for i=1, parentFilter:GetNumChildren(), 1 do
+        local filterChild = parentFilter:GetChild(i)
+        if filterChild ~= nil and filterChild.GetName ~= nil then
+            filterButtons.filter[strfor(filtersPattern, filterChild:GetName())] = true
+        end
+    end
+--[[
     filterButtons.filter    = {
         ["ZO_ChatOptionsFilterEntry1Check"] = true,         -- Say
         ["ZO_ChatOptionsFilterEntry2Check"] = true,         -- Yell
@@ -42,6 +55,14 @@ local function ToggleMarkAll(chatContainer, hasAllMarked, cbTypes)
         ["ZO_ChatOptionsFilterEntry10Check"] = true,        -- Zone DE
         ["ZO_ChatOptionsFilterEntry11Check"] = true,        --!!!Custom!!! From addon pChat: System
     }
+]]
+    local guildFiltersPattern = "ZO_ChatOptionsGuildFilters%sGuildCheck"
+    local guildOfficerFiltersPattern = "ZO_ChatOptionsGuildFilters%sOfficerCheck"
+    for guildIndex=1, GetNumGuilds(), 1 do
+        filterButtons.guild[strfor(guildFiltersPattern, tos(guildIndex))] = true
+        filterButtons.guild[strfor(guildOfficerFiltersPattern, tos(guildIndex))] = true
+    end
+--[[
     filterButtons.guild      = {
         ["ZO_ChatOptionsGuildFilters1GuildCheck"] = true,   -- Guild 1
         ["ZO_ChatOptionsGuildFilters1OfficerCheck"] = true, -- Guild 1 officer
@@ -54,6 +75,10 @@ local function ToggleMarkAll(chatContainer, hasAllMarked, cbTypes)
         ["ZO_ChatOptionsGuildFilters5GuildCheck"] = true,   -- Guild 5
         ["ZO_ChatOptionsGuildFilters5OfficerCheck"] = true, -- Guild 5 officer
     }
+]]
+
+    local filterButtonFilter = filterButtons.filter
+    local filterButtonGuildFilter = filterButtons.guild
 
     local checkMe
     local filterButtonName
@@ -61,11 +86,11 @@ local function ToggleMarkAll(chatContainer, hasAllMarked, cbTypes)
         filterButtonName = filterButton:GetName()
         checkMe = false
         if cbTypes == "all" then
-            if filterButtons.filter[filterButtonName] or filterButtons.guild[filterButtonName] then checkMe = true end
+            if filterButtonFilter[filterButtonName] or filterButtonGuildFilter[filterButtonName] then checkMe = true end
         elseif cbTypes == "filter" then
-            if filterButtons.filter[filterButtonName] then checkMe = true end
+            if filterButtonFilter[filterButtonName] then checkMe = true end
         elseif cbTypes == "guild" then
-            if filterButtons.guild[filterButtonName] then checkMe = true end
+            if filterButtonGuildFilter[filterButtonName] then checkMe = true end
         end
         if checkMe then
             if hasAllMarked then
@@ -309,7 +334,7 @@ local function FCOChatTabBrain_CheckChatChannelRedirect(text, channel, recipient
         channel = CHAT_CHANNEL_WHISPER
     end
     local currentIndex = chatSystem.primaryContainer.currentBuffer:GetParent().tab.index
-    --d("[FCOChatTabBrain_CheckChatChannelRedirect] CHAT_CHANNEL_WHISPER=" .. CHAT_CHANNEL_WHISPER .. ", channel="..channel .. ", currentIndex: " .. currentIndex .. ", RecipientName: " .. recipientName .. ", currentWhisperText: " ..tostring(FCOCTB.whisperVars.currentText))
+    --d("[FCOChatTabBrain_CheckChatChannelRedirect] CHAT_CHANNEL_WHISPER=" .. CHAT_CHANNEL_WHISPER .. ", channel="..channel .. ", currentIndex: " .. currentIndex .. ", RecipientName: " .. recipientName .. ", currentWhisperText: " ..tos(FCOCTB.whisperVars.currentText))
     if currentIndex ~= redirectWhisperChannelId and channel == CHAT_CHANNEL_WHISPER then
         if FCOCTB.whisperVars.currentText == " " then FCOCTB.whisperVars.currentText = "" end
         --Change chat tab and fill in whispered target name + execute it so it is selected + send the text message then
@@ -357,6 +382,9 @@ local function FCOChatTabBrain_SetNextChatChannel(currentChannel)
         [CHAT_CHANNEL_ZONE_LANGUAGE_2]  = settings.autoOpenZoneFRChannelId,
         [CHAT_CHANNEL_ZONE_LANGUAGE_3]  = settings.autoOpenZoneDEChannelId,
         [CHAT_CHANNEL_ZONE_LANGUAGE_4]  = settings.autoOpenZoneJPChannelId,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_5]  = settings.autoOpenZoneRUChannelId,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_6]  = settings.autoOpenZoneESChannelId,
+        [CHAT_CHANNEL_ZONE_LANGUAGE_7]  = settings.autoOpenZoneZHChannelId,
         [CHAT_CHANNEL_MONSTER_SAY]      = settings.autoOpenNSCChannelId,
         [CHAT_CHANNEL_MONSTER_YELL]     = settings.autoOpenNSCChannelId,
         [CHAT_CHANNEL_MONSTER_WHISPER]  = settings.autoOpenNSCChannelId,
@@ -374,7 +402,7 @@ local function FCOChatTabBrain_SetNextChatChannel(currentChannel)
         --Keep the receiver of the whisper we were typing to! And do not answer the last incoming whisper message.
         local lastWhisperReceiver = FCOCTB.whisperVars.lastReceiver
         local currentReceiver = chatSystem.currentReceiver
---d(">currentReceiver: " ..tostring(currentReceiver) .. ", lastWhisperReceiver: " ..tostring(lastWhisperReceiver))
+--d(">currentReceiver: " ..tos(currentReceiver) .. ", lastWhisperReceiver: " ..tos(lastWhisperReceiver))
         if (lastWhisperReceiver ~= nil and lastWhisperReceiver ~= "") and (currentReceiver ~= nil and currentReceiver ~= "")
             and currentReceiver ~= lastWhisperReceiver then
             chatSystem:SetChannel(CHAT_CHANNEL_WHISPER, lastWhisperReceiver)
@@ -579,7 +607,7 @@ function FCOCTB.hookChat_functions()
         if (settings.chatBrainActive == true) then
             local tabIndex = self.primaryContainer.currentBuffer:GetParent().tab.index
             settings.brain[tabIndex] = settings.brain[tabIndex] or {}
-            --d("ValidateChatChannel, channel: " .. tostring(self.currentChannel) .. ", target: " .. tostring(self.currentTarget))
+            --d("ValidateChatChannel, channel: " .. tos(self.currentChannel) .. ", target: " .. tos(self.currentTarget))
             --Redirect of whispers is deactivated
             if settings.redirectWhisperChannelId == 0 or settings.redirectWhisperChannelId == nil then
                 settings.brain[tabIndex].channel = self.currentChannel
@@ -625,7 +653,7 @@ function FCOCTB.hookChat_functions()
         local settings = FCOCTB.settingsVars.settings
         if (settings.chatBrainActive == true) then
             local tabIndex = tab.index
-            --d("Clicked on chat tab, index: " .. tostring(tabIndex))
+            --d("Clicked on chat tab, index: " .. tos(tabIndex))
             if settings.brain[tabIndex] then
                 chatSystem:SetChannel(settings.brain[tabIndex].channel, settings.brain[tabIndex].target)
             end
@@ -654,7 +682,7 @@ function FCOCTB.hookChat_functions()
 
         --Get the current chat channel
         local currentChannel = FCOCTB.GetActiveChatChannelAtTab()
---d("[StartTextEntry]currentChannel: " ..tostring(currentChannel))
+--d("[StartTextEntry]currentChannel: " ..tos(currentChannel))
         --If we are not whispering
         if currentChannel ~= nil then
             --Set the next outgoing chat channel to the last incoming chat message channel.
@@ -664,10 +692,10 @@ function FCOCTB.hookChat_functions()
         if currentChannel == CHAT_CHANNEL_WHISPER then
             local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
             local whisperReply = FCOCTB.whisperVars.whisperReply
---d(">whispering, redirect to chatTab: " ..tostring(redirectWhisperChannelId) .. ", target: " ..tostring(target) ..", whisperReply: " ..tostring(whisperReply))
+--d(">whispering, redirect to chatTab: " ..tos(redirectWhisperChannelId) .. ", target: " ..tos(target) ..", whisperReply: " ..tos(whisperReply))
             if redirectWhisperChannelId ~= nil and redirectWhisperChannelId ~= 0 then
                 if text == nil or text == "" and channel == "" or channel == nil and target == nil then return end
-                --d("StartTextEntry: text=" .. text .. ", channel=" .. tostring(channel) .. ", target=" .. target)
+                --d("StartTextEntry: text=" .. text .. ", channel=" .. tos(channel) .. ", target=" .. target)
                 --call slightly delayed as otherwise the commandHistory is not updated yet
                 zo_callLater(function()
                     FCOChatTabBrain_CheckChatChannelRedirect(text, channel, target, whisperReply, nil)
@@ -709,7 +737,7 @@ function FCOCTB.hookChat_functions()
 
     --PreHook the chat system's tabulator key in the text edit (for auto complete) by pre hooking the ZO_AutoComplete OnCommit function
     ZO_PreHook(chatSystem.textEntry.targetAutoComplete, "OnCommit", function(commitBehavior, commitMethod)
-        --d("Auto complete entry OnCommit, commitBehavior: " .. tostring(commitBehavior) .. ", commitMethod: " .. tostring(commitMethod))
+        --d("Auto complete entry OnCommit, commitBehavior: " .. tos(commitBehavior) .. ", commitMethod: " .. tos(commitMethod))
         FCOCTB.SetUserLastAction()
         local redirectWhisperChannelId = FCOCTB.settingsVars.settings.redirectWhisperChannelId
         if redirectWhisperChannelId ~= nil and redirectWhisperChannelId ~= 0 then
@@ -728,7 +756,7 @@ function FCOCTB.hookChat_functions()
 
     --PreHook the function when you select an entry of the autocomplete
     ZO_PreHook(chatSystem.textEntry.targetAutoComplete, "FireCallbacks", function(control, eventName, name, autoCompleteType)
-        --d("Auto complete entry FireCallbacks - eventName: " .. tostring(eventName) .. ", name: " .. tostring(name) .. ", autoCompleteType: " .. tostring(autoCompleteType))
+        --d("Auto complete entry FireCallbacks - eventName: " .. tos(eventName) .. ", name: " .. tos(name) .. ", autoCompleteType: " .. tos(autoCompleteType))
         if FCOCTB.settingsVars.settings.redirectWhisperChannelId ~= 0 and FCOCTB.settingsVars.settings.redirectWhisperChannelId ~= nil then
             if autoCompleteType == AUTO_COMPLETION_SELECTED_BY_CLICK then
                 zo_callLater(function()
@@ -792,7 +820,7 @@ function FCOCTB.hookChat_functions()
         end
         FCOCTB.preventerVars.clickedMinMaxChatButton = false
         --Disable the timer for the chat auto minimization
-        --d("Timer active: " .. tostring(chatVars.chatMinimizeTimerActive))
+        --d("Timer active: " .. tos(chatVars.chatMinimizeTimerActive))
         --Only go on with further checks if the chat is not minimized on load of the addon
         if settings.chatMinimizeOnLoad and not FCOCTB.addonVars.gAddonFullyLoaded then return false end
         --Check if the timer is active and disable it then
@@ -834,7 +862,7 @@ function FCOCTB.hookChat_functions()
         FCOCTB.preventerVars.clickedMinMaxChatButton = false
         --Enable the timer for the chat auto minimization again
         local autoMinimizeTimeout = settings.autoMinimizeTimeout
---d("Timer active: " .. tostring(chatVars.chatMinimizeTimerActive) .. ", autoMinimizeTimeout: " ..tostring(autoMinimizeTimeout))
+--d("Timer active: " .. tos(chatVars.chatMinimizeTimerActive) .. ", autoMinimizeTimeout: " ..tos(autoMinimizeTimeout))
         if autoMinimizeTimeout ~= nil and autoMinimizeTimeout > 0 and not chatVars.chatMinimizeTimerActive then
             chatVars.chatMinimizeTimerActive = EVENT_MANAGER:RegisterForUpdate(addonName.."ChatMinimizeCheck", 1000, FCOCTB.MinimizeChatCheck)
             chatVars.lastIncomingMessage = GetTimeStamp() -- needed so the auto minimize feature starts to count the time difference from now

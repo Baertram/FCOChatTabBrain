@@ -99,6 +99,10 @@ function FCOCTB.BuildAddonMenu()
         ["FCOChatTabBrainTabZoneDE"] = FCOCTBsettings.autoOpenZoneDEChannelId,
         ["FCOChatTabBrainTabZoneEN"] = FCOCTBsettings.autoOpenZoneENChannelId,
         ["FCOChatTabBrainTabZoneFR"] = FCOCTBsettings.autoOpenZoneFRChannelId,
+        ["FCOChatTabBrainTabZoneJP"] = FCOCTBsettings.autoOpenZoneJPChannelId,
+        ["FCOChatTabBrainTabZoneRU"] = FCOCTBsettings.autoOpenZoneRUChannelId,
+        ["FCOChatTabBrainTabZoneES"] = FCOCTBsettings.autoOpenZoneESChannelId,
+        ["FCOChatTabBrainTabZoneZH"] = FCOCTBsettings.autoOpenZoneZHChannelId,
         ["FCOChatTabBrainTabGroup"] = FCOCTBsettings.autoOpenGroupChannelId,
         ["FCOChatTabBrainTabSystem"] = FCOCTBsettings.autoOpenSystemChannelId,
         ["FCOChatTabBrainTabNSC"] = FCOCTBsettings.autoOpenNSCChannelId,
@@ -180,6 +184,9 @@ function FCOCTB.BuildAddonMenu()
             FCOChatTabBrain_Settings_PlaySoundTabZoneEN.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zoneen_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageZoneEN])
             FCOChatTabBrain_Settings_PlaySoundTabZoneFR.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zonefr_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageZoneFR])
             FCOChatTabBrain_Settings_PlaySoundTabZoneJP.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zonejp_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageZoneJP])
+            FCOChatTabBrain_Settings_PlaySoundTabZoneRU.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zoneru_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageZoneRU])
+            FCOChatTabBrain_Settings_PlaySoundTabZoneES.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zonees_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageZoneES])
+            FCOChatTabBrain_Settings_PlaySoundTabZoneZH.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zonezh_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageZoneZH])
             FCOChatTabBrain_Settings_PlaySoundTabGroup.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_group_tab"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnMessageGroup])
             FCOChatTabBrain_Settings_PlaySoundGroupleader.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_groupleader"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnGroupLeader])
             FCOChatTabBrain_Settings_PlaySoundGuildMaster.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_guildmaster"] .. ": " .. FCOCTB.sounds[FCOCTBsettings.playSoundOnGuildMaster])
@@ -512,6 +519,24 @@ function FCOCTB.BuildAddonMenu()
                     tooltip = FCOCTBlocVarsCTB["options_checkbox_enable_tooltip"],
                     getFunc = function() return FCOCTBsettings.chatBrainActive end,
                     setFunc = function(value) FCOCTB.toggleChatBrain() end,
+                    default = FCOCTBdefSettings.chatBrainActive,
+                },
+
+                {
+                    type = "checkbox",
+                    name = FCOCTBlocVarsCTB["options_checkbox_autoscrollToBottom"],
+                    tooltip = FCOCTBlocVarsCTB["options_checkbox_autoscrollToBottom_TT"],
+                    getFunc = function() return FCOCTBsettings.autoScrollToChatBottomUponNewIncomingMsg end,
+                    setFunc = function(value) FCOCTBsettings.autoScrollToChatBottomUponNewIncomingMsg = value end,
+                    default = FCOCTBdefSettings.autoScrollToChatBottomUponNewIncomingMsg,
+                },
+                {
+                    type = "checkbox",
+                    name = FCOCTBlocVarsCTB["options_chat_tab_switch_by_keybind_scroll_to_bottom"],
+                    tooltip = FCOCTBlocVarsCTB["options_chat_tab_switch_by_keybind_scroll_to_bottom_TT"],
+                    getFunc = function() return FCOCTBsettings.autoScrollToChatBottomUponKeybindTabSwitch end,
+                    setFunc = function(value) FCOCTBsettings.autoScrollToChatBottomUponKeybindTabSwitch = value end,
+                    default = FCOCTBdefSettings.autoScrollToChatBottomUponKeybindTabSwitch,
                 },
 
             }, -- controls options
@@ -1744,6 +1769,195 @@ function FCOCTB.BuildAddonMenu()
                     }, -- controls Zone JP
                 }, -- submenu Zone JP
 
+                ----- Zone RU ---------------------------------------------------------------------------------------------------
+                {
+                    type = "submenu",
+                    name = GetString(SI_CHATCHANNELCATEGORIES24),
+                    controls = {
+                        {
+                            type = 'dropdown',
+                            name = FCOCTBlocVarsCTB["options_chat_auto_open_zoneru_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_zoneru_tab_tooltip"],
+                            choices = chatVars.chatTabNames,
+                            getFunc = function()
+                                if chatVars.chatTabNames[FCOCTBsettings.autoOpenZoneRUChannelId] ~= nil then
+                                    if FCOCTBsettings.autoOpenZoneRUChannelId == 0 then
+                                        return FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"]
+                                    end
+                                    return chatVars.chatTabNames[FCOCTBsettings.autoOpenZoneRUChannelId]
+                                else
+                                    return ""
+                                end
+                            end,
+                            setFunc = function(value)
+                                for i,v in pairs(chatVars.chatTabNames) do
+                                    if v == value then
+                                        if value == FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"] then
+                                            FCOCTBsettings.autoOpenZoneRUChannelId = 0
+                                            break
+                                        end
+                                        FCOCTBsettings.autoOpenZoneRUChannelId = i
+                                        checkChatTabForChatCategory(i, {CHAT_CHANNEL_ZONE_LANGUAGE_5})
+                                        break
+                                    end
+                                end
+                            end,
+                            width="half",
+                            reference = "FCOChatTabBrainTabZoneRU",
+                        },
+                        {
+                            type = "slider",
+                            name = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_zoneru_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_tooltip"],
+                            min = 1,
+                            max = 1800,
+                            getFunc = function() return FCOCTBsettings.autoOpenZoneRUIdleTime end,
+                            setFunc = function(idleSeconds)
+                                FCOCTBsettings.autoOpenZoneRUIdleTime = idleSeconds
+                            end,
+                            width="half",
+                            default = FCOCTBdefSettings.autoOpenZoneRUIdleTime,
+                            disabled = function() return FCOCTBsettings.autoOpenZoneRUChannelId == 0  end,
+                        },
+                        {
+                            type = "checkbox",
+                            name = FCOCTBlocVarsCTB["options_chat_auto_change_channel_zoneru_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_change_channel_zoneru_tab_tooltip"],
+                            getFunc = function() return FCOCTBsettings.autoChangeToChannelZoneRU end,
+                            setFunc = function(value) FCOCTBsettings.autoChangeToChannelZoneRU = value
+                            end,
+                            default = FCOCTBdefSettings.autoChangeToChannelZoneRU,
+                            disabled = function() return FCOCTBsettings.autoOpenZoneRUChannelId == 0  end,
+                        },
+                    }, -- controls Zone RU
+                }, -- submenu Zone RU
+
+                ----- Zone ES ---------------------------------------------------------------------------------------------------
+                {
+                    type = "submenu",
+                    name = GetString(SI_CHATCHANNELCATEGORIES25),
+                    controls = {
+                        {
+                            type = 'dropdown',
+                            name = FCOCTBlocVarsCTB["options_chat_auto_open_zonees_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_zonees_tab_tooltip"],
+                            choices = chatVars.chatTabNames,
+                            getFunc = function()
+                                if chatVars.chatTabNames[FCOCTBsettings.autoOpenZoneESChannelId] ~= nil then
+                                    if FCOCTBsettings.autoOpenZoneESChannelId == 0 then
+                                        return FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"]
+                                    end
+                                    return chatVars.chatTabNames[FCOCTBsettings.autoOpenZoneESChannelId]
+                                else
+                                    return ""
+                                end
+                            end,
+                            setFunc = function(value)
+                                for i,v in pairs(chatVars.chatTabNames) do
+                                    if v == value then
+                                        if value == FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"] then
+                                            FCOCTBsettings.autoOpenZoneESChannelId = 0
+                                            break
+                                        end
+                                        FCOCTBsettings.autoOpenZoneESChannelId = i
+                                        checkChatTabForChatCategory(i, {CHAT_CHANNEL_ZONE_LANGUAGE_6})
+                                        break
+                                    end
+                                end
+                            end,
+                            width="half",
+                            reference = "FCOChatTabBrainTabZoneES",
+                        },
+                        {
+                            type = "slider",
+                            name = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_zonees_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_tooltip"],
+                            min = 1,
+                            max = 1800,
+                            getFunc = function() return FCOCTBsettings.autoOpenZoneESIdleTime end,
+                            setFunc = function(idleSeconds)
+                                FCOCTBsettings.autoOpenZoneESIdleTime = idleSeconds
+                            end,
+                            width="half",
+                            default = FCOCTBdefSettings.autoOpenZoneESIdleTime,
+                            disabled = function() return FCOCTBsettings.autoOpenZoneESChannelId == 0  end,
+                        },
+                        {
+                            type = "checkbox",
+                            name = FCOCTBlocVarsCTB["options_chat_auto_change_channel_zonees_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_change_channel_zonees_tab_tooltip"],
+                            getFunc = function() return FCOCTBsettings.autoChangeToChannelZoneES end,
+                            setFunc = function(value) FCOCTBsettings.autoChangeToChannelZoneES = value
+                            end,
+                            default = FCOCTBdefSettings.autoChangeToChannelZoneES,
+                            disabled = function() return FCOCTBsettings.autoOpenZoneESChannelId == 0  end,
+                        },
+                    }, -- controls Zone ES
+                }, -- submenu Zone ES
+
+                ----- Zone ZH ---------------------------------------------------------------------------------------------------
+                {
+                    type = "submenu",
+                    name = GetString(SI_CHATCHANNELCATEGORIES26),
+                    controls = {
+                        {
+                            type = 'dropdown',
+                            name = FCOCTBlocVarsCTB["options_chat_auto_open_zonezh_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_zonezh_tab_tooltip"],
+                            choices = chatVars.chatTabNames,
+                            getFunc = function()
+                                if chatVars.chatTabNames[FCOCTBsettings.autoOpenZoneZHChannelId] ~= nil then
+                                    if FCOCTBsettings.autoOpenZoneZHChannelId == 0 then
+                                        return FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"]
+                                    end
+                                    return chatVars.chatTabNames[FCOCTBsettings.autoOpenZoneZHChannelId]
+                                else
+                                    return ""
+                                end
+                            end,
+                            setFunc = function(value)
+                                for i,v in pairs(chatVars.chatTabNames) do
+                                    if v == value then
+                                        if value == FCOCTBlocVarsCTB["options_checkbox_redirect_whisper_chat_disable"] then
+                                            FCOCTBsettings.autoOpenZoneZHChannelId = 0
+                                            break
+                                        end
+                                        FCOCTBsettings.autoOpenZoneZHChannelId = i
+                                        checkChatTabForChatCategory(i, {CHAT_CHANNEL_ZONE_LANGUAGE_7})
+                                        break
+                                    end
+                                end
+                            end,
+                            width="half",
+                            reference = "FCOChatTabBrainTabZoneZH",
+                        },
+                        {
+                            type = "slider",
+                            name = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_zonezh_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_open_idle_time_tooltip"],
+                            min = 1,
+                            max = 1800,
+                            getFunc = function() return FCOCTBsettings.autoOpenZoneZHIdleTime end,
+                            setFunc = function(idleSeconds)
+                                FCOCTBsettings.autoOpenZoneZHIdleTime = idleSeconds
+                            end,
+                            width="half",
+                            default = FCOCTBdefSettings.autoOpenZoneZHIdleTime,
+                            disabled = function() return FCOCTBsettings.autoOpenZoneZHChannelId == 0  end,
+                        },
+                        {
+                            type = "checkbox",
+                            name = FCOCTBlocVarsCTB["options_chat_auto_change_channel_zonezh_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_auto_change_channel_zonezh_tab_tooltip"],
+                            getFunc = function() return FCOCTBsettings.autoChangeToChannelZoneZH end,
+                            setFunc = function(value) FCOCTBsettings.autoChangeToChannelZoneZH = value
+                            end,
+                            default = FCOCTBdefSettings.autoChangeToChannelZoneZH,
+                            disabled = function() return FCOCTBsettings.autoOpenZoneZHChannelId == 0  end,
+                        },
+                    }, -- controls Zone ZH
+                }, -- submenu Zone ZH
+
                 ----- Group---------------------------------------------------------------------------------------------------
                 {
                     type = "submenu",
@@ -1828,6 +2042,9 @@ function FCOCTB.BuildAddonMenu()
                                         FCOCTBsettings.autoOpenZoneENChannelId == 0 and
                                         FCOCTBsettings.autoOpenZoneFRChannelId == 0 and
                                         FCOCTBsettings.autoOpenZoneJPChannelId == 0 and
+                                        FCOCTBsettings.autoOpenZoneRUChannelId == 0 and
+                                        FCOCTBsettings.autoOpenZoneESChannelId == 0 and
+                                        FCOCTBsettings.autoOpenZoneZHChannelId == 0 and
                                         FCOCTBsettings.autoOpenGroupChannelId == 0 and
                                         FCOCTBsettings.autoOpenSystemChannelId == 0 and
                                         FCOCTBsettings.autoOpenNSCChannelId == 0
@@ -2626,6 +2843,96 @@ function FCOCTB.BuildAddonMenu()
                             setFunc = function(value) FCOCTBsettings.playSoundWithActiveTabZoneJP = value end,
                             disabled = function() return FCOCTBsettings.disableChatSounds or FCOCTBsettings.playSoundOnMessageZoneJP == 1 end,
                             reference = "FCOChatTabBrain_Settings_PlaySoundWithActiveTabZoneJP",
+                        },
+
+                        {
+                            type = 'slider',
+                            name = FCOCTBlocVarsCTB["options_chat_play_sound_zoneru_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_zoneru_tab_tooltip"],
+                            min = 1,
+                            max = #FCOCTB.sounds,
+                            getFunc = function()
+                                return FCOCTBsettings.playSoundOnMessageZoneRU
+                            end,
+                            setFunc = function(idx)
+                                FCOCTBsettings.playSoundOnMessageZoneRU = idx
+                                FCOChatTabBrain_Settings_PlaySoundTabZoneRU.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zoneru_tab"] .. ": " .. FCOCTB.sounds[idx])
+                                if idx ~= 1 and SOUNDS ~= nil and SOUNDS[FCOCTB.sounds[idx]] ~= nil then
+                                    PlaySound(SOUNDS[FCOCTB.sounds[idx]])
+                                end
+                            end,
+                            default = FCOCTBdefSettings.playSoundOnMessageZoneRU,
+                            reference = "FCOChatTabBrain_Settings_PlaySoundTabZoneRU",
+                            disabled = function() return FCOCTBsettings.disableChatSounds end
+                        },
+                        {
+                            type = "checkbox",
+                            name = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active_tooltip"],
+                            getFunc = function() return FCOCTBsettings.playSoundWithActiveTabZoneRU end,
+                            setFunc = function(value) FCOCTBsettings.playSoundWithActiveTabZoneRU = value end,
+                            disabled = function() return FCOCTBsettings.disableChatSounds or FCOCTBsettings.playSoundOnMessageZoneRU == 1 end,
+                            reference = "FCOChatTabBrain_Settings_PlaySoundWithActiveTabZoneRU",
+                        },
+
+                        {
+                            type = 'slider',
+                            name = FCOCTBlocVarsCTB["options_chat_play_sound_zonees_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_zonees_tab_tooltip"],
+                            min = 1,
+                            max = #FCOCTB.sounds,
+                            getFunc = function()
+                                return FCOCTBsettings.playSoundOnMessageZoneES
+                            end,
+                            setFunc = function(idx)
+                                FCOCTBsettings.playSoundOnMessageZoneES = idx
+                                FCOChatTabBrain_Settings_PlaySoundTabZoneES.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zonees_tab"] .. ": " .. FCOCTB.sounds[idx])
+                                if idx ~= 1 and SOUNDS ~= nil and SOUNDS[FCOCTB.sounds[idx]] ~= nil then
+                                    PlaySound(SOUNDS[FCOCTB.sounds[idx]])
+                                end
+                            end,
+                            default = FCOCTBdefSettings.playSoundOnMessageZoneES,
+                            reference = "FCOChatTabBrain_Settings_PlaySoundTabZoneES",
+                            disabled = function() return FCOCTBsettings.disableChatSounds end
+                        },
+                        {
+                            type = "checkbox",
+                            name = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active_tooltip"],
+                            getFunc = function() return FCOCTBsettings.playSoundWithActiveTabZoneES end,
+                            setFunc = function(value) FCOCTBsettings.playSoundWithActiveTabZoneES = value end,
+                            disabled = function() return FCOCTBsettings.disableChatSounds or FCOCTBsettings.playSoundOnMessageZoneES == 1 end,
+                            reference = "FCOChatTabBrain_Settings_PlaySoundWithActiveTabZoneES",
+                        },
+
+                        {
+                            type = 'slider',
+                            name = FCOCTBlocVarsCTB["options_chat_play_sound_zonezh_tab"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_zonezh_tab_tooltip"],
+                            min = 1,
+                            max = #FCOCTB.sounds,
+                            getFunc = function()
+                                return FCOCTBsettings.playSoundOnMessageZoneZH
+                            end,
+                            setFunc = function(idx)
+                                FCOCTBsettings.playSoundOnMessageZoneZH = idx
+                                FCOChatTabBrain_Settings_PlaySoundTabZoneZH.label:SetText(FCOCTBlocVarsCTB["options_chat_play_sound_zonezh_tab"] .. ": " .. FCOCTB.sounds[idx])
+                                if idx ~= 1 and SOUNDS ~= nil and SOUNDS[FCOCTB.sounds[idx]] ~= nil then
+                                    PlaySound(SOUNDS[FCOCTB.sounds[idx]])
+                                end
+                            end,
+                            default = FCOCTBdefSettings.playSoundOnMessageZoneZH,
+                            reference = "FCOChatTabBrain_Settings_PlaySoundTabZoneZH",
+                            disabled = function() return FCOCTBsettings.disableChatSounds end
+                        },
+                        {
+                            type = "checkbox",
+                            name = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active"],
+                            tooltip = FCOCTBlocVarsCTB["options_chat_play_sound_with_tab_active_tooltip"],
+                            getFunc = function() return FCOCTBsettings.playSoundWithActiveTabZoneZH end,
+                            setFunc = function(value) FCOCTBsettings.playSoundWithActiveTabZoneZH = value end,
+                            disabled = function() return FCOCTBsettings.disableChatSounds or FCOCTBsettings.playSoundOnMessageZoneZH == 1 end,
+                            reference = "FCOChatTabBrain_Settings_PlaySoundWithActiveTabZoneZH",
                         },
                     }, -- controls sounds zone
 
